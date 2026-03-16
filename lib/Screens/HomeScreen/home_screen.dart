@@ -2884,19 +2884,19 @@ class _HomePageState extends State<HomePage> {
                     final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageScreen()));
                     if (result != null && result != currentLanguage) _loadData();
                   }),
-                  _buildDrawerItem(Icons.star_outline, 'Featured Songs', isPremium: !isPremium, onTap: isPremium ? () {
+                  _buildDrawerItem(Icons.star_outline, 'Featured Songs', showLock: !isPremium, onTap: isPremium ? () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => FeaturedSongs()));
                   } : null),
-                  _buildDrawerItem(Icons.bookmark_outline, 'My Set List', isPremium: !isPremium, onTap: isPremium ? () {
+                  _buildDrawerItem(Icons.bookmark_outline, 'My Set List', showLock: !isPremium, onTap: isPremium ? () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => MySetList()));
                   } : null),
-                  _buildDrawerItem(Icons.note_alt_outlined, 'Worship Notes', isPremium: !isPremium, onTap: isPremium ? () {
+                  _buildDrawerItem(Icons.note_alt_outlined, 'Worship Notes', showLock: !isPremium, onTap: isPremium ? () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => WorshipNotesScreen()));
                   } : null),
-                  _buildDrawerItem(Icons.auto_stories_outlined, 'How to Read Lyrics', isPremium: !isPremium, onTap: isPremium ? () {
+                  _buildDrawerItem(Icons.auto_stories_outlined, 'How to Read Lyrics', showLock: !isPremium, onTap: isPremium ? () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => HowToReadLyrics()));
                   } : null),
