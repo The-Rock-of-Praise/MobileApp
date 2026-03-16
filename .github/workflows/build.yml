@@ -1,4 +1,4 @@
-# Triggering build restart
+# Restarting build after manual cancellation
 name: Build Mobile App
 
 on:
