@@ -152,7 +152,10 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
-    _searchService = OfflineSearchService(baseUrl: 'https://api.therockofpraise.org');
+  void initState() {
+    super.initState();
+    _searchService =
+        OfflineSearchService(baseUrl: 'https://api.therockofpraise.org');
     _initializeConnectivity();
     loadPremiumStatus();
     _loadThemeSettings();
@@ -2662,13 +2665,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
- 
-
-Widget _buildCustomDrawer() {
-  final headerBgColor = ThemeService.getProfileHeaderColor(
-    selectedTheme,
-    isAutomaticTheme,
-  );
+  Widget _buildCustomDrawer() {
+    final headerBgColor = ThemeService.getProfileHeaderColor(
+      selectedTheme,
+      isAutomaticTheme,
+    );
 
   // Facebook Dark Style Colors & Glass Effect Settings
   final Color glassBackground = Colors.black.withOpacity(0.75); 
@@ -2969,7 +2970,7 @@ Widget _buildCustomDrawer() {
     IconData icon,
     String title, {
     Function? onTap,
-    bool isPremium = false,
+    bool showLock = false,
     int badgeCount = 0,
   }) {
     Color fColor;
@@ -3003,7 +3004,7 @@ Widget _buildCustomDrawer() {
                 ),
               ),
             )
-          : isPremium
+          : showLock
               ? Icon(Icons.lock, color: fColor, size: 20)
               : null,
       title: Text(
