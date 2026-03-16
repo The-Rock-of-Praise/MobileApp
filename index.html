@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Deletion - Lyrics App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background-color: #ffebee;
+            border-left: 4px solid #d32f2f;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #b71c1c;
+        }
+        #confirmation {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-left: 4px solid #2e7d32;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Delete Your Account</h1>
+        
+        <div class="warning">
+            <strong>Warning:</strong> This action is permanent and cannot be undone. All your data, including saved songs and preferences, will be permanently deleted.
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email address" required>
+        </div>
+
+        <div class="form-group">
+            <label for="reason">Reason for leaving (optional)</label>
+            <textarea id="reason" rows="4" placeholder="Help us improve by telling us why you're leaving..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="confirmDelete" required>
+                I understand that this action is permanent and all my data will be deleted.
+            </label>
+        </div>
+
+        <button id="deleteButton" disabled>Delete My Account</button>
+        
+        <div id="confirmation">
+            Your account deletion request has been received. You will receive a confirmation email shortly.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const confirmCheckbox = document.getElementById('confirmDelete');
+            const deleteButton = document.getElementById('deleteButton');
+            const confirmationMessage = document.getElementById('confirmation');
+
+            // Enable/disable delete button based on form validity
+            function updateButtonState() {
+                deleteButton.disabled = !(emailInput.validity.valid && confirmCheckbox.checked);
+            }
+
+            emailInput.addEventListener('input', updateButtonState);
+            confirmCheckbox.addEventListener('change', updateButtonState);
+
+            // Handle form submission
+            deleteButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Here you would typically make an API call to delete the account
+                // For example:
+                fetch('/api/users/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: emailInput.value,
+                        reason: document.getElementById('reason').value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    confirmationMessage.style.display = 'block';
+                    // Optionally redirect after successful deletion
+                    // setTimeout(() => window.location.href = '/goodbye', 3000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again later.');
+                });
+
+                // For demo purposes, just show the confirmation
+                confirmationMessage.style.display = 'block';
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+        });
+    </script>
+</body>
+</html>

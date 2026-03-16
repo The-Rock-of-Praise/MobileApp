@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "422917812627",
+    "project_id": "rock-of-praise-lyrics-a7daa",
+    "storage_bucket": "rock-of-praise-lyrics-a7daa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422917812627:android:507111f7846720142ff866",
+        "android_client_info": {
+          "package_name": "com.therockofpraise.lyrics"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6dub3U0rRrs5rF3Soa6hhrz_c8llHZCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
