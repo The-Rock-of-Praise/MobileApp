@@ -11,6 +11,9 @@ subprojects {
         if (hasProperty("android")) {
             extensions.findByType<com.android.build.gradle.BaseExtension>()?.apply {
                 compileSdkVersion(35)
+                defaultConfig {
+                    minSdkVersion(23)
+                }
             }
         }
     }
