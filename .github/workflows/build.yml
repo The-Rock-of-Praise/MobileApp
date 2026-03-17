@@ -77,11 +77,11 @@ jobs:
       - name: Install Cocoapods
         run: cd ios && pod install --repo-update
 
-      - name: Build Release IPA (Unsigned)
-        run: flutter build ipa --release --no-codesign
+      - name: Build Release iOS
+        run: flutter build ios --release --no-codesign
 
-      - name: Upload IPA
+      - name: Upload iOS App
         uses: actions/upload-artifact@v4
         with:
-          name: release-ipa
-          path: build/ios/ipa/*.ipa
+          name: ios-build-bundle
+          path: build/ios/iphoneos/Runner.app
