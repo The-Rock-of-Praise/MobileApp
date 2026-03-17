@@ -18,5 +18,5 @@ class Const {
       // 'MzcxMTYxNTczMjk2NzIwMDMxOTE4MTQwNjAxOTg3NjY3MDM3NzY=';
       'NDc3ODcwNDE5MjQwODkzODM1MDU0NDc3MzY2MjMzNjU2MDgxODk=';
 
-  static const String merchant_id = '1234448';
+  static const String merchant_id = '247804';
 }

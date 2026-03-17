@@ -61,7 +61,7 @@ class FireBaseAuthServices {
       print('✅ Google User obtained: ${googleUser.email}');
 
       final response = await _userService.client.post(
-        Uri.parse('http://192.168.8.101:3100/api/auth/social-auth'),
+        Uri.parse('https://api.therockofpraise.org/api/auth/social-auth'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'fullname': googleUser.displayName ?? 'Google User',
@@ -137,7 +137,7 @@ class FireBaseAuthServices {
       }
 
       final response = await _userService.client.post(
-        Uri.parse('http://192.168.8.101:3100/api/auth/social-auth'),
+        Uri.parse('https://api.therockofpraise.org/api/auth/social-auth'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'fullname': displayName,
