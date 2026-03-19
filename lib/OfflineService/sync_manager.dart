@@ -8,9 +8,6 @@ import 'package:lyrics/Service/song_service.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/Service/setlist_service.dart';
 import 'package:lyrics/Service/worship_note_service.dart';
-import 'package:lyrics/Models/artist_model.dart';
-import 'package:lyrics/Models/song_model.dart';
-import 'package:lyrics/Models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 

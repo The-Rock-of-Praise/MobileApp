@@ -883,12 +883,15 @@ class OfflineGroupSongService {
 
   List<String> _getAvailableLanguages(GroupSongModel groupSong) {
     final available = <String>[];
-    if (groupSong.lyricsTa != null && groupSong.lyricsTa!.trim().isNotEmpty)
+    if (groupSong.lyricsTa != null && groupSong.lyricsTa!.trim().isNotEmpty) {
       available.add('ta');
-    if (groupSong.lyricsSi != null && groupSong.lyricsSi!.trim().isNotEmpty)
+    }
+    if (groupSong.lyricsSi != null && groupSong.lyricsSi!.trim().isNotEmpty) {
       available.add('si');
-    if (groupSong.lyricsEn != null && groupSong.lyricsEn!.trim().isNotEmpty)
+    }
+    if (groupSong.lyricsEn != null && groupSong.lyricsEn!.trim().isNotEmpty) {
       available.add('en');
+    }
     return available;
   }
 

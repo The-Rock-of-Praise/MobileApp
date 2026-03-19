@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:lyrics/FireBase/auth_service.dart';
 import 'package:lyrics/OfflineService/offline_user_service.dart';
 import 'package:lyrics/Screens/AuthScreens/login_page.dart';
 import 'package:lyrics/Screens/Profile/edit_profile.dart';
 import 'package:lyrics/Service/language_service.dart';
 import 'package:lyrics/Service/user_service.dart';
-import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,7 +22,6 @@ class _ProfileState extends State<Profile> {
   final OfflineUserService _userService = OfflineUserService();
   Map<String, dynamic>? _profileDetails;
   bool _isLoading = true;
-  String? _errorMessage;
   String _preferredLanguage = 'English';
   bool isPremium = false;
 
@@ -68,7 +65,6 @@ class _ProfileState extends State<Profile> {
       }
     } catch (e) {
       print('Profile: Error loading data: $e');
-      _errorMessage = 'Error: $e';
     }
   }
 

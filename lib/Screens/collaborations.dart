@@ -1,6 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:lyrics/Models/artist_model.dart';
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_groupe_service.dart';
 import 'package:lyrics/Screens/music_player.dart';
@@ -121,10 +120,9 @@ class _CollaborationsPageState extends State<CollaborationsPage> {
         filteredGroupSongs =
             groupSongs.where((groupSong) {
               final songNameMatch =
-                  groupSong.songName?.toLowerCase().contains(
+                  groupSong.songName.toLowerCase().contains(
                     query.toLowerCase(),
-                  ) ??
-                  false;
+                  );
               final artistsMatch = groupSong.artists.any(
                 (artist) =>
                     artist.name.toLowerCase().contains(query.toLowerCase()),
@@ -152,7 +150,7 @@ class _CollaborationsPageState extends State<CollaborationsPage> {
             (context) => MusicPlayer(
               backgroundImage: groupSong.image,
               song: groupSong.songName,
-              id: groupSong.id ?? 0,
+              id: groupSong.id,
               artists: groupSong.artists,
             ),
       ),
@@ -363,7 +361,7 @@ class _CollaborationsPageState extends State<CollaborationsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      groupSong.songName ?? 'Unknown Song',
+                      groupSong.songName,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

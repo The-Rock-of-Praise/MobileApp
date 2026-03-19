@@ -2,9 +2,6 @@ import 'dart:ui'; // මෙය අනිවාර්යයෙන්ම තිබ
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:lyrics/Const/const.dart';
-import 'package:lyrics/Models/artist_model.dart';
-import 'package:lyrics/Models/song_model.dart';
 import 'package:lyrics/Models/user_model.dart';
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_album_service.dart';
@@ -14,8 +11,6 @@ import 'package:lyrics/OfflineService/offline_worship_team_service.dart';
 import 'package:lyrics/Models/worship_team_model.dart';
 import 'package:lyrics/Service/worship_entity_service.dart';
 import 'package:lyrics/OfflineService/offline_worship_entity_service.dart';
-import 'package:lyrics/Service/group_song_service.dart';
-import 'package:lyrics/Service/worship_team_service.dart';
 import 'package:lyrics/OfflineService/offline_user_service.dart';
 import 'package:lyrics/OfflineService/offline_song_service.dart';
 import 'package:lyrics/OfflineService/sync_manager.dart';
@@ -33,24 +28,20 @@ import 'package:lyrics/Screens/all_songs.dart';
 import 'package:lyrics/Screens/artist_page.dart';
 import 'package:lyrics/Screens/language_screen.dart';
 import 'package:lyrics/Screens/music_player.dart';
-import 'package:lyrics/Screens/worship_team.dart';
 import 'package:lyrics/Service/album_service.dart';
 import 'package:lyrics/Service/artist_service.dart';
 import 'package:lyrics/Service/language_service.dart';
-import 'package:lyrics/Service/search_service.dart';
 import 'package:lyrics/Service/song_service.dart';
 import 'package:lyrics/Service/theme_service.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:lyrics/Screens/worship_artist_page.dart';
 import 'package:lyrics/Screens/worship_artist_album_song_details.dart';
 import 'package:lyrics/Screens/notification_screen.dart';
 import 'package:lyrics/OfflineService/offline_notification_service.dart';
 
 import '../collaborations.dart';
-import '../worship_team_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -1291,7 +1282,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildGroupSongCard(GroupSongModel groupSong) {
-    return Container(
+    return SizedBox(
       width: 120,
       height: 150,
       // decoration: BoxDecoration(
@@ -2666,10 +2657,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCustomDrawer() {
-    final headerBgColor = ThemeService.getProfileHeaderColor(
-      selectedTheme,
-      isAutomaticTheme,
-    );
 
   // Facebook Dark Style Colors & Glass Effect Settings
   final Color glassBackground = Colors.black.withOpacity(0.75); 
@@ -3026,7 +3013,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildArtistCard(ArtistModel artist) {
-  return Container(
+  return SizedBox(
     width: 120,
     height: 150,
     child: Column(
@@ -3095,7 +3082,7 @@ class _HomePageState extends State<HomePage> {
 }
 
   Widget _buildAlbumCard(AlbumModel album) {
-  return Container(
+  return SizedBox(
     width: 120,
     height: 150,
     // මුළු Card එකටම තිබ්බ decoration එක අයින් කළා

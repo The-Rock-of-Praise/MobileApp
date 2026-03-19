@@ -1,8 +1,6 @@
 // OfflineService/offline_search_service.dart
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/database_helper.dart';
-import 'package:lyrics/Models/artist_model.dart';
-import 'package:lyrics/Models/song_model.dart';
 import 'package:lyrics/OfflineService/offline_groupe_service.dart';
 import 'package:lyrics/Service/album_service.dart';
 import 'package:lyrics/Service/artist_service.dart';

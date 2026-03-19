@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lyrics/Models/artist_model.dart';
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_artist_service.dart';
 import 'package:lyrics/Screens/DrawerScreens/premium_screen.dart';
 import 'package:lyrics/Screens/artist_album_song_details.dart';
 import 'package:lyrics/Service/artist_service.dart';
 import 'package:lyrics/Service/language_service.dart';
-import 'package:lyrics/Screens/all_songs.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';

@@ -9,7 +9,6 @@ import 'package:lyrics/OfflineService/database_helper.dart';
 import 'package:lyrics/Service/album_service.dart';
 import 'package:lyrics/Service/artist_service.dart';
 import 'package:lyrics/Service/search_service.dart';
-import 'package:lyrics/Service/setlist_service.dart';
 import 'package:lyrics/Service/song_service.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/Service/worship_note_service.dart';

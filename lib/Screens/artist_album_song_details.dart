@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lyrics/Models/artist_model.dart';
-import 'package:lyrics/Models/song_model.dart';
 import 'package:lyrics/OfflineService/offline_album_service.dart';
 import 'package:lyrics/OfflineService/offline_artist_service.dart';
 import 'package:lyrics/Service/album_service.dart';

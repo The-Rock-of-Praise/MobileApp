@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:lyrics/Service/base_api.dart';
-import 'package:lyrics/Service/setlist_service.dart';
 
 class SongModel {
   final int? id;

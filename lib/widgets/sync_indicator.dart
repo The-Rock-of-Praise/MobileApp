@@ -17,7 +17,6 @@ class _SyncIndicatorState extends State<SyncIndicator> {
 
   bool _isOnline = false;
   bool _isSyncing = false;
-  DateTime? _lastSync;
 
   @override
   void initState() {
@@ -34,11 +33,9 @@ class _SyncIndicatorState extends State<SyncIndicator> {
 
   Future<void> _checkStatus() async {
     final isOnline = await _connectivityManager.isConnected();
-    final lastSync = await _syncManager.getLastSyncTime();
 
     setState(() {
       _isOnline = isOnline;
-      _lastSync = lastSync;
       _isSyncing = _syncManager.isSyncing;
     });
   }

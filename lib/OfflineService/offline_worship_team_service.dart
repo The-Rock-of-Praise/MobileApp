@@ -255,12 +255,15 @@ class OfflineWorshipTeamService {
 
   List<String> _getAvailableLanguages(WorshipTeamModel team) {
     final available = <String>[];
-    if (team.lyricsTa != null && team.lyricsTa!.trim().isNotEmpty)
+    if (team.lyricsTa != null && team.lyricsTa!.trim().isNotEmpty) {
       available.add('ta');
-    if (team.lyricsSi != null && team.lyricsSi!.trim().isNotEmpty)
+    }
+    if (team.lyricsSi != null && team.lyricsSi!.trim().isNotEmpty) {
       available.add('si');
-    if (team.lyricsEn != null && team.lyricsEn!.trim().isNotEmpty)
+    }
+    if (team.lyricsEn != null && team.lyricsEn!.trim().isNotEmpty) {
       available.add('en');
+    }
     return available;
   }
 

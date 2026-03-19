@@ -4,12 +4,11 @@ import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_worship_team_service.dart';
 import 'package:lyrics/Screens/DrawerScreens/premium_screen.dart';
 import 'package:lyrics/Service/language_service.dart';
-import 'package:lyrics/Screens/music_player.dart';
 import 'worship_team_details.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
-import 'package:lyrics/Models/artist_model.dart'; // Needed for conversion if required
+// Needed for conversion if required
 
 class WorshipTeamPage extends StatefulWidget {
   const WorshipTeamPage({super.key});

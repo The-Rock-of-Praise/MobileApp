@@ -1,7 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:lyrics/Models/song_model.dart';
-import 'package:lyrics/Models/artist_model.dart';
 import 'package:lyrics/OfflineService/offline_groupe_service.dart';
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_artist_service.dart';
@@ -513,12 +511,6 @@ class SongCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholder() {
-    return Container(
-      color: Colors.grey.withOpacity(0.3),
-      child: const Icon(Icons.music_note, color: Colors.white, size: 30),
-    );
-  }
 }
 
 // Alternative card with more song information
@@ -666,10 +658,4 @@ class DetailedSongCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholder() {
-    return Container(
-      color: Colors.grey.withOpacity(0.3),
-      child: const Icon(Icons.music_note, color: Colors.white, size: 30),
-    );
-  }
 }

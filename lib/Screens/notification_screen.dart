@@ -237,7 +237,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.notifications_none, color: Colors.white24, size: 80),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text('No notifications yet', style: TextStyle(color: Colors.white54, fontSize: 16)),
           ],
         ),

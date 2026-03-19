@@ -1,7 +1,5 @@
 // proactive_image_cache_manager.dart - Enhanced image caching with proactive strategy
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -233,7 +231,7 @@ class ProactiveImageCacheManager {
       }
 
       print(
-        '📱 ${_cachedImages} images already cached, ${uncachedUrls.length} to download',
+        '📱 $_cachedImages images already cached, ${uncachedUrls.length} to download',
       );
 
       if (uncachedUrls.isEmpty) {

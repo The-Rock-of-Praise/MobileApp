@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter_social_button/flutter_social_button.dart';
 import 'package:lyrics/widgets/main_background.dart';
 import 'package:url_launcher/url_launcher.dart';

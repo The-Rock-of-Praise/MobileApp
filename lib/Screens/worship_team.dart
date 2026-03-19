@@ -4,7 +4,6 @@ import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_worship_team_service.dart';
 import 'package:lyrics/Screens/DrawerScreens/premium_screen.dart';
 import 'package:lyrics/Service/language_service.dart';
-import 'package:lyrics/Screens/music_player.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
@@ -110,7 +109,7 @@ class _WorshipTeamState extends State<WorshipTeam> {
             allWorshipTeams
                 .where(
                   (worshipTeam) =>
-                      (worshipTeam.songname ?? '').toLowerCase().contains(
+                      worshipTeam.songname.toLowerCase().contains(
                         query.toLowerCase(),
                       ) ||
                       (worshipTeam.artistName ?? '').toLowerCase().contains(
@@ -638,7 +637,7 @@ class _WorshipTeamState extends State<WorshipTeam> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      worshipTeam.songname ?? 'Unknown Song',
+                      worshipTeam.songname,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

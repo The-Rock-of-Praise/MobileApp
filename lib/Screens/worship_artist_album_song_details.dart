@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lyrics/Models/worship_team_model.dart';
 import 'package:lyrics/OfflineService/offline_worship_entity_service.dart';
 import 'package:lyrics/Service/worship_entity_service.dart';
 import 'package:lyrics/Screens/music_player.dart';

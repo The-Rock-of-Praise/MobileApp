@@ -4,13 +4,11 @@ import 'package:lyrics/OfflineService/offline_user_service.dart';
 import 'package:lyrics/OfflineService/offline_worship_team_service.dart';
 import 'package:lyrics/Screens/DrawerScreens/setting_screen.dart';
 import 'package:lyrics/Service/color_service.dart';
-import 'package:lyrics/Service/language_service.dart';
 import 'package:lyrics/Service/lyrics_service.dart';
 import 'package:lyrics/Service/setlist_service.dart';
 import 'package:lyrics/Service/setting_service.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Import offline services
 import 'package:lyrics/OfflineService/offline_song_service.dart';
@@ -191,7 +189,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
     }
   }
 
-  @override
   void onColorChanged(Color newColor) {
     setState(() {
       selectedLyricsColor = newColor;
@@ -869,31 +866,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
     }
   }
 
-  IconData _getLanguageIcon(String languageCode) {
-    switch (languageCode) {
-      case 'ta':
-        return Icons.translate;
-      case 'si':
-        return Icons.language;
-      case 'en':
-        return Icons.abc;
-      default:
-        return Icons.text_fields;
-    }
-  }
-
-  double _getFontSizeForLanguage(String languageCode) {
-    switch (languageCode) {
-      case 'ta':
-        return 20; // Larger for Tamil script
-      case 'si':
-        return 19; // Medium for Sinhala script
-      case 'en':
-        return 18; // Standard for English
-      default:
-        return 18;
-    }
-  }
 
   double _getLineHeightForLanguage(String languageCode) {
     switch (languageCode) {
@@ -1348,7 +1320,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                             ),
                           )
                           : Image.asset(
-                            widget.backgroundImage! ?? '',
+                            widget.backgroundImage ?? '',
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.fitHeight,

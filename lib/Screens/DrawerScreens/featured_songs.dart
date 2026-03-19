@@ -4,7 +4,6 @@ import 'package:lyrics/OfflineService/offline_favorites_service.dart';
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/Service/song_service.dart';
 import 'package:lyrics/Service/user_service.dart';
-import 'package:lyrics/Models/song_model.dart';
 import 'package:lyrics/Screens/music_player.dart';
 import 'package:lyrics/widgets/main_background.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
