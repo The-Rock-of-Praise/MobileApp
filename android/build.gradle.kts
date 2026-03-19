@@ -20,27 +20,23 @@ subprojects {
 }
 
 // Fix for Windows cross-drive Gradle build issue.
-// When the project is on a different drive (e.g. E:) than the pub cache (C:),
-// Gradle fails because source and output roots differ. We force all build output
-// onto C: (the user home drive) on Windows, and keep the default elsewhere (CI/Linux).
 val isWindows = System.getProperty("os.name").lowercase().contains("windows")
 
 if (isWindows) {
     val userHome = System.getenv("USERPROFILE") ?: "C:/Users/${System.getProperty("user.name")}"
     val winBuildDir = File("$userHome/flutter_build_cache/${rootProject.name}")
-    rootProject.layout.buildDirectory.value(rootProject.layout.dir(provider { winBuildDir }))
+    rootProject.buildDir = winBuildDir
     subprojects {
-        val subBuildDir = File("$userHome/flutter_build_cache/${rootProject.name}/${project.name}")
-        project.layout.buildDirectory.value(project.layout.dir(provider { subBuildDir }))
+        project.buildDir = File(winBuildDir, project.name)
     }
 } else {
-    val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
-    rootProject.layout.buildDirectory.value(newBuildDir)
+    val newBuildDir = File(rootProject.projectDir, "../../build")
+    rootProject.buildDir = newBuildDir
     subprojects {
-        val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-        project.layout.buildDirectory.value(newSubprojectBuildDir)
+        project.buildDir = File(newBuildDir, project.name)
     }
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
