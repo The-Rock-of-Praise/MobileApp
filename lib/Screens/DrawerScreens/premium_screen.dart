@@ -158,18 +158,29 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      ShaderMask(
-                                        shaderCallback: (bounds) => const LinearGradient(
-                                          colors: [Colors.blueAccent, Colors.purpleAccent, Colors.orangeAccent],
-                                        ).createShader(bounds),
-                                        child: const Text(
-                                          'Pro Version',
-                                          style: TextStyle(
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          ShaderMask(
+                                            shaderCallback: (bounds) => const LinearGradient(
+                                              colors: [Colors.blueAccent, Colors.purpleAccent, Colors.orangeAccent],
+                                            ).createShader(bounds),
+                                            child: const Text(
+                                              'Pro Version',
+                                              style: TextStyle(
+                                                fontSize: 28,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                          // Refresh Status Button
+                                          IconButton(
+                                            onPressed: _isLoading ? null : () => _initializeProfile(),
+                                            icon: Icon(Icons.refresh, color: Colors.white.withOpacity(0.5)),
+                                            tooltip: 'Refresh Status',
+                                          ),
+                                        ],
                                       ),
                                       const SizedBox(height: 12),
                                       Row(
@@ -202,7 +213,18 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
                                         width: double.infinity,
                                         height: 55,
                                         child: ElevatedButton(
-                                          onPressed: _isLoading ? null : () => _processPremiumUpgrade(),
+                                          onPressed: _isLoading ? null : () async {
+                                            // Final check if they are already premium before opening browser
+                                            if (_userProfile?['isPremium'] == 1 || 
+                                                _userProfile?['isPremium'] == true || 
+                                                _userProfile?['isPremium'] == "1") {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('You are already a PRO member!'))
+                                              );
+                                              return;
+                                            }
+                                            await _processPremiumUpgrade();
+                                          },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.white.withOpacity(0.1),
                                             foregroundColor: Colors.white,
