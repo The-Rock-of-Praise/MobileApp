@@ -30,7 +30,7 @@ if (isWindows) {
         project.buildDir = File(winBuildDir, project.name)
     }
 } else {
-    val newBuildDir = File(rootProject.projectDir, "../../build")
+    val newBuildDir = File(rootProject.projectDir, "../build")
     rootProject.buildDir = newBuildDir
     subprojects {
         project.buildDir = File(newBuildDir, project.name)
