@@ -19,13 +19,13 @@ class OfflineSearchService {
   }
 
   // Main search method that searches across all content types
-  Future<Map<String, dynamic>> search(String query) async {
+  Future<Map<String, dynamic>> search(String query, {String? language}) async {
     final isConnected = await _connectivityManager.isConnected();
 
     if (isConnected) {
       try {
         print('📡 Searching online...');
-        final result = await _onlineService.search(query);
+        final result = await _onlineService.search(query, language: language);
         if (result['success']) {
           return {...result, 'source': 'online'};
         }
@@ -34,18 +34,18 @@ class OfflineSearchService {
       }
     }
 
-    return await _searchCache(query);
+    return await _searchCache(query, language: language);
   }
 
   // Search in cached data
-  Future<Map<String, dynamic>> _searchCache(String query) async {
+  Future<Map<String, dynamic>> _searchCache(String query, {String? language}) async {
     try {
       // Search all content types in parallel
       final List<Future> searches = [
-        _searchCachedArtists(query),
-        _searchCachedAlbums(query),
-        _searchCachedSongs(query),
-        _groupSongService.searchGroupSongs(query),
+        _searchCachedArtists(query, language: language),
+        _searchCachedAlbums(query, language: language),
+        _searchCachedSongs(query, language: language),
+        _groupSongService.searchGroupSongs(query, language: language),
       ];
 
       final results = await Future.wait(searches);
@@ -73,21 +73,28 @@ class OfflineSearchService {
   }
 
   // Search cached artists
-  Future<Map<String, dynamic>> _searchCachedArtists(String query) async {
+  Future<Map<String, dynamic>> _searchCachedArtists(String query, {String? language}) async {
     final db = await _dbHelper.database;
 
     try {
-      final maps = await db.rawQuery(
-        '''
+      String sql = '''
         SELECT * FROM artists 
         WHERE synced != -1 AND (
           name LIKE ? OR 
           bio LIKE ?
         )
-        ORDER BY name
-      ''',
-        ['%$query%', '%$query%'],
-      );
+      ''';
+      List<dynamic> params = ['%$query%', '%$query%'];
+
+      if (language != null && language.isNotEmpty) {
+        sql += ' AND (language = ? OR language LIKE ?)';
+        params.add(language);
+        params.add('%$language%');
+      }
+
+      sql += ' ORDER BY name';
+
+      final maps = await db.rawQuery(sql, params);
 
       final artists = maps.map((map) => ArtistModel.fromJson(map)).toList();
 
@@ -107,12 +114,11 @@ class OfflineSearchService {
   }
 
   // Search cached albums
-  Future<Map<String, dynamic>> _searchCachedAlbums(String query) async {
+  Future<Map<String, dynamic>> _searchCachedAlbums(String query, {String? language}) async {
     final db = await _dbHelper.database;
 
     try {
-      final maps = await db.rawQuery(
-        '''
+      String sql = '''
         SELECT albums.*, artists.name as artist_name, artists.image as artist_image
         FROM albums 
         LEFT JOIN artists ON albums.artist_id = artists.id
@@ -121,10 +127,18 @@ class OfflineSearchService {
           albums.description LIKE ? OR
           artists.name LIKE ?
         )
-        ORDER BY albums.name
-      ''',
-        ['%$query%', '%$query%', '%$query%'],
-      );
+      ''';
+      List<dynamic> params = ['%$query%', '%$query%', '%$query%'];
+
+      if (language != null && language.isNotEmpty) {
+        // Use either album language or artist language
+        sql += ' AND (albums.language = ? OR artists.language = ? OR albums.language LIKE ? OR artists.language LIKE ?)';
+        params.addAll([language, language, '%$language%', '%$language%']);
+      }
+
+      sql += ' ORDER BY albums.name';
+
+      final maps = await db.rawQuery(sql, params);
 
       final albums = maps.map((map) => AlbumModel.fromJson(map)).toList();
 
@@ -144,12 +158,11 @@ class OfflineSearchService {
   }
 
   // Search cached songs
-  Future<Map<String, dynamic>> _searchCachedSongs(String query) async {
+  Future<Map<String, dynamic>> _searchCachedSongs(String query, {String? language}) async {
     final db = await _dbHelper.database;
 
     try {
-      final maps = await db.rawQuery(
-        '''
+      String sql = '''
         SELECT songs.*, artists.name as artist_name, artists.image as artist_image, 
                albums.name as album_name, albums.image as album_image
         FROM songs 
@@ -162,10 +175,18 @@ class OfflineSearchService {
           songs.lyrics_en LIKE ? OR
           songs.lyrics_ta LIKE ?
         )
-        ORDER BY songs.songname
-      ''',
-        ['%$query%', '%$query%', '%$query%', '%$query%', '%$query%'],
-      );
+      ''';
+      List<dynamic> params = ['%$query%', '%$query%', '%$query%', '%$query%', '%$query%'];
+
+      if (language != null && language.isNotEmpty) {
+        sql += ' AND (artists.language = ? OR artists.language LIKE ?)';
+        params.add(language);
+        params.add('%$language%');
+      }
+
+      sql += ' ORDER BY songs.songname';
+
+      final maps = await db.rawQuery(sql, params);
 
       final songs = maps.map((map) => SongModel.fromJson(map)).toList();
 

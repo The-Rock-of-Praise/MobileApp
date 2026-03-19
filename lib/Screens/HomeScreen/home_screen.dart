@@ -1050,8 +1050,15 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      final result = await _searchService.search(query);
-      final groupSongResult = await _groupSongService.searchGroupSongs(query);
+      // Get the current language for filtering
+      final lang = await LanguageService.getLanguage();
+      final langcode = LanguageService.getLanguageCode(lang);
+
+      final result = await _searchService.search(query, language: langcode);
+      final groupSongResult = await _groupSongService.searchGroupSongs(
+        query,
+        language: langcode,
+      );
 
       if (mounted) {
         setState(() {

@@ -12,14 +12,18 @@ class SearchService {
 
   Future<Map<String, dynamic>> search(
     String query, {
+    String? language,
     int page = 1,
     int limit = 10,
   }) async {
     try {
+      String url = '$baseUrl/api/search?q=${Uri.encodeQueryComponent(query)}&page=$page&limit=$limit';
+      if (language != null && language.isNotEmpty) {
+        url += '&lang=$language';
+      }
+
       final response = await http.get(
-        Uri.parse(
-          '$baseUrl/api/search?q=${Uri.encodeQueryComponent(query)}&page=$page&limit=$limit',
-        ),
+        Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
       );
       print('Search Response Status: ${response.statusCode}');
