@@ -2,7 +2,6 @@ import 'dart:ui'; // මෙය අනිවාර්යයෙන්ම තිබ
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:lyrics/Models/user_model.dart';
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_album_service.dart';
 import 'package:lyrics/OfflineService/offline_artist_service.dart';
@@ -97,8 +96,6 @@ class _HomePageState extends State<HomePage> {
   List<WorshipTeamModel> worshipTeams = [];
   List<WorshipArtistModel> worshipArtists = [];
   List<WorshipAlbumModel> worshipAlbums = [];
-  bool _isLoading = true;
-  String? _errorMessage;
 
   Map<String, dynamic>? _profileDetails;
 
