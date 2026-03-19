@@ -46,13 +46,16 @@ jobs:
           echo "storeFile=upload-keystore.jks" >> android/key.properties
 
       - name: Build Release APK
-        run: flutter build apk --release
+        run: |
+          flutter clean
+          flutter pub get
+          flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/*.apk
 
   build-ios:
     runs-on: macos-latest
@@ -78,10 +81,13 @@ jobs:
         run: cd ios && pod install --repo-update
 
       - name: Build Release iOS
-        run: flutter build ios --release --no-codesign
+        run: |
+          flutter clean
+          flutter pub get
+          flutter build ipa --release --no-codesign
 
-      - name: Upload iOS App
+      - name: Upload iOS IPA
         uses: actions/upload-artifact@v4
         with:
-          name: ios-build-bundle
-          path: build/ios/iphoneos/Runner.app
+          name: release-ipa
+          path: build/ios/ipa/*.ipa
