@@ -100,7 +100,6 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = true;
   String? _errorMessage;
 
-  UserModel? _currentUser;
   Map<String, dynamic>? _profileDetails;
 
   String? currentLanguage;
@@ -606,23 +605,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _showOfflineMessage(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.wifi_off, color: Colors.white, size: 16),
-              SizedBox(width: 8),
-              Expanded(child: Text(message)),
-            ],
-          ),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-  }
 
   Future<int> _getArtistTotalSongCount(int? artistId) async {
     if (artistId == null) return 0;
@@ -1345,103 +1327,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildWorshipTeamCard(WorshipTeamModel wt) {
-    return Container(
-      width: 120,
-      height: 150,
-      // decoration: BoxDecoration(
-      //   color: Colors.white.withOpacity(0.05),
-      //   borderRadius: BorderRadius.circular(15),
-      //   border: Border.all(color: Colors.white.withOpacity(0.1)),
-      // ),
-      decoration: BoxDecoration(
-        color: Colors.transparent, 
-        border: Border.all(color: Colors.transparent, width: 0), 
-      ),
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center, 
-      children: [
-        // 1. Image එක
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: CachedImageWidget(
-              imageUrl: wt.image,
-              width: 110,
-              height: 110, // Image එකේ උස පමණක්
-              fit: BoxFit.cover,
-              errorWidget: Container(
-                color: Colors.grey[800],
-                child: const Icon(Icons.group, color: Colors.white24, size: 40),
-              ),
-            ),
-          ),
-        ),
-        
-        // 2. Image එක සහ Text අතර පරතරය
-        const SizedBox(height: 15),
 
-        // 3. පහළින් ඇති Text කොටස
-       Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: Text(
-            wt.songname,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.visible, // ellipsis වෙනුවට visible දාන්න
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: Text(
-            wt.artistName ?? 'Unknown Artist',
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
-            maxLines: 1,
-            overflow: TextOverflow.visible,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    ),
-    );
-  }
-
-  void _showWorshipTeamDetail(WorshipTeamModel wt) async {
-    final isConnected = await _connectivityManager.isConnected();
-    final isPremiumStr = await UserService.getIsPremium();
-    final isPremium = isPremiumStr == '1';
-
-    // If user is offline and not premium, show premium dialog
-    if (!isConnected && !isPremium) {
-      _showPremiumDialog(isOffline: true, feature: 'worship team songs');
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => MusicPlayer(
-              backgroundImage: wt.image,
-              song: wt.songname,
-              id: wt.id ?? 0,
-              artist: wt.artistName ?? 'Unknown Artist',
-              isWorshipTeam: true,
-              lyrics: wt.lyricsEn,
-            ),
-      ),
-    );
-  }
 
   // Add this method to navigate to group song
   void _navigateToGroupSong(GroupSongModel groupSong) async {
@@ -2330,75 +2216,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildWorshipAlbumCard(WorshipAlbumModel album) {
-    return Container(
-      width: 120,
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(15)),
-              child: CachedImageWidget(
-                imageUrl: album.image,
-                width: double.infinity,
-                height: 120,
-                fit: BoxFit.cover,
-                errorWidget: Container(
-                  color: Colors.grey[800],
-                  child:
-                      const Icon(Icons.album, color: Colors.white24, size: 40),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  album.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  album.artistName ?? 'Unknown Artist',
-                  style: const TextStyle(color: Colors.white70, fontSize: 15),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _navigateToWorshipAlbumDetails(WorshipAlbumModel album) async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => WorshipArtistAlbumSongDetails(
-              artistId: album.artistId,
-              artistName: album.artistName ?? 'Unknown Artist',
-              artistImage: album.artistImage,
-            ),
-      ),
-    );
-  }
 
   void _showPremiumDialog({
     bool isOffline = false,

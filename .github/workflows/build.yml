@@ -49,7 +49,34 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          flutter build apk --release
+          flutter build apk --release --verbose
+        continue-on-error: true
+
+      - name: Debug Output directory
+        run: |
+          echo "Listing build directory:"
+          find build -name "*.apk" || echo "No APK found in build/"
+          echo "Listing android/app/build directory:"
+          find android/app/build -name "*.apk" || echo "No APK found in android/app/build/"
+
+      - name: Move APK if in non-standard location
+        run: |
+          if [ ! -d "build/app/outputs/flutter-apk" ]; then
+            mkdir -p build/app/outputs/flutter-apk
+          fi
+          if [ -f "android/app/build/outputs/apk/release/app-release.apk" ] && [ ! -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk build/app/outputs/flutter-apk/app-release.apk
+            echo "Copied APK from android/app/build to build/app/outputs/flutter-apk"
+          fi
+
+      - name: Check for APK existence
+        run: |
+          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ]; then
+             echo "Error: app-release.apk not found even after fallback check!"
+             # Don't fail the whole workflow yet if IPA build might succeed, 
+             # but we need to know if this step failed.
+             exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
