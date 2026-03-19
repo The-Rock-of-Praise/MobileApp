@@ -388,17 +388,38 @@ class _WorshipArtistPageState extends State<WorshipArtistPage> {
       final result = await _artistService.getWorshipArtistsByLanguage(langcode);
 
       if (result['success']) {
+        List<WorshipArtistModel> artists = result['artists'] ?? [];
+
+        // If no artists found for the current language, load ALL artists as fallback
+        if (artists.isEmpty) {
+          final allResult = await _artistService.getWorshipArtists();
+          if (allResult['success']) {
+            artists = allResult['artists'] ?? [];
+          }
+        }
+
         setState(() {
-          allArtists = result['artists'] ?? [];
+          allArtists = artists;
           filteredArtists = List.from(allArtists);
-          languageDisplayName = lang; // Or fetch from LanguageService if available
+          languageDisplayName = lang;
           isLoading = false;
         });
       } else {
-        setState(() {
-          errorMessage = result['message'] ?? 'Failed to load artists';
-          isLoading = false;
-        });
+        // On failure, also try to load all artists
+        final allResult = await _artistService.getWorshipArtists();
+        if (allResult['success']) {
+          setState(() {
+            allArtists = allResult['artists'] ?? [];
+            filteredArtists = List.from(allArtists);
+            languageDisplayName = 'All';
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            errorMessage = result['message'] ?? 'Failed to load artists';
+            isLoading = false;
+          });
+        }
       }
     } catch (e) {
       setState(() {
