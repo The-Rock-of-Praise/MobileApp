@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lyrics/Models/user_model.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/OfflineService/offline_user_service.dart';
+import 'package:intl/intl.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -73,8 +74,8 @@ class _EditProfileState extends State<EditProfile> {
           if (innerProfile['date_of_birth'] != null) {
             try {
               DateTime dob = DateTime.parse(innerProfile['date_of_birth']);
-              _dobController.text = "${dob.day.toString().padLeft(2, '0')}-${dob.month.toString().padLeft(2, '0')}-${dob.year}";
-              _apiDateOfBirth = "${dob.year}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}";
+              _dobController.text = DateFormat('dd MMM yyyy').format(dob);
+              _apiDateOfBirth = DateFormat('yyyy-MM-dd').format(dob);
             } catch (e) {
               print('Date parse error: $e');
             }
@@ -172,8 +173,8 @@ class _EditProfileState extends State<EditProfile> {
 
     if (pickedDate != null) {
       setState(() {
-        _dobController.text = "${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.year}";
-        _apiDateOfBirth = "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+        _dobController.text = DateFormat('dd MMM yyyy').format(pickedDate);
+        _apiDateOfBirth = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }
   }

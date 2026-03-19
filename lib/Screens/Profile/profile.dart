@@ -10,6 +10,7 @@ import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 import 'dart:ui'; // BackdropFilter use karanna meka ona
 
 class Profile extends StatefulWidget {
@@ -82,6 +83,17 @@ class _ProfileState extends State<Profile> {
     
     // Fallback to top level
     return _profileDetails![key]?.toString() ?? defaultValue;
+  }
+
+  String _formatDate(String dateStr) {
+    if (dateStr == 'Not provided' || dateStr == 'N/A' || dateStr.isEmpty) return dateStr;
+    try {
+      // Backend format is usually YYYY-MM-DD
+      DateTime dt = DateTime.parse(dateStr);
+      return DateFormat('dd MMM yyyy').format(dt);
+    } catch (e) {
+      return dateStr;
+    }
   }
 
   @override
@@ -201,7 +213,7 @@ class _ProfileState extends State<Profile> {
               _buildInfoTile(Icons.phone_iphone, "Phone", _profileDetails?['phonenumber'] ?? 'Not provided'),
               _buildInfoTile(Icons.fingerprint, "User ID", _profileDetails?['id']?.toString() ?? 'N/A'),
               _buildInfoTile(Icons.public, "Country", _getProfileValue('country', 'Not Provided')),
-              _buildInfoTile(Icons.cake, "Birthday", _getProfileValue('date_of_birth', 'Not provided')),
+              _buildInfoTile(Icons.cake, "Birthday", _formatDate(_getProfileValue('date_of_birth', 'Not provided'))),
               _buildInfoTile(Icons.face, "Gender", _getProfileValue('gender', 'Not specified')),
 
               const SizedBox(height: 20),

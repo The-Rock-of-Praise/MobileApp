@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lyrics/Models/notification_model.dart';
 import 'package:lyrics/OfflineService/offline_notification_service.dart';
 import 'package:lyrics/widgets/main_background.dart';
+import 'package:intl/intl.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -72,6 +73,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
+  String _formatDate(String dateStr) {
+    if (dateStr.isEmpty) return 'No date';
+    try {
+      // The backend usually sends YYYY-MM-DD
+      DateTime dt = DateTime.parse(dateStr);
+      return DateFormat('dd MMM yyyy').format(dt);
+    } catch (e) {
+      // If it's already formatted or in another format, return as is
+      return dateStr;
+    }
+  }
+
   Widget _buildNotificationDetails(NotificationModel notification) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
@@ -120,7 +133,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      notification.date,
+                      _formatDate(notification.date),
                       style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
                     ),
                   ],
@@ -307,7 +320,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    notification.date,
+                    _formatDate(notification.date),
                     style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
                   ),
                 ],
