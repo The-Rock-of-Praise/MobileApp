@@ -713,29 +713,28 @@ class _HomePageState extends State<HomePage> {
       final lang = await LanguageService.getLanguage();
       final langcode = LanguageService.getLanguageCode(lang);
 
-      // Fetch songs by language using offline service (which handles online + cache)
+      // 1. Fetch regular songs by language
       final songsResult = await _songService.getSongsByLanguage(langcode);
 
-      // Fetch group songs by language
-      final groupSongsResult = await OfflineGroupSongService()
-          .getGroupSongsByLanguage(langcode);
+      // 2. Fetch group songs by language
+      final groupSongsResult =
+          await OfflineGroupSongService().getGroupSongsByLanguage(langcode);
+
+      // 3. Fetch worship team songs by language
+      final worshipTeamsResult = await _worshipTeamService
+          .getWorshipTeamsByLanguage(langcode);
 
       List<Map<String, dynamic>> combinedReleases = [];
 
-      // Process songs (already filtered by language from API)
+      // Process regular songs
       if (songsResult['success']) {
         final songsData = songsResult['songs'] as List<dynamic>? ?? [];
-        final songs =
-            songsData
-                .map(
-                  (item) =>
-                      item is SongModel
-                          ? item
-                          : SongModel.fromJson(item as Map<String, dynamic>),
-                )
-                .toList();
+        final songs = songsData
+            .map((item) => item is SongModel
+                ? item
+                : SongModel.fromJson(item as Map<String, dynamic>))
+            .toList();
 
-        // Add songs to combined list
         for (var song in songs) {
           combinedReleases.add({
             'type': 'song',
@@ -744,6 +743,7 @@ class _HomePageState extends State<HomePage> {
             'artistName': song.artistName ?? 'Unknown Artist',
             'image': song.image ?? song.albumImage ?? song.artistImage,
             'releaseDate': song.releaseDate,
+            'createdAt': song.createdAt,
             'data': song,
           });
         }
@@ -753,22 +753,14 @@ class _HomePageState extends State<HomePage> {
       if (groupSongsResult['success'] == true) {
         final groupSongsData =
             groupSongsResult['groupSongs'] as List<dynamic>? ?? [];
-        final groupSongs =
-            groupSongsData
-                .map(
-                  (item) =>
-                      item is GroupSongModel
-                          ? item
-                          : GroupSongModel.fromJson(
-                            item as Map<String, dynamic>,
-                          ),
-                )
-                .toList();
+        final groupSongs = groupSongsData
+            .map((item) => item is GroupSongModel
+                ? item
+                : GroupSongModel.fromJson(item as Map<String, dynamic>))
+            .toList();
 
-        // Add group songs to combined list (already filtered by language from API)
         for (var groupSong in groupSongs) {
           final artistNames = groupSong.artists.map((a) => a.name).join(', ');
-
           combinedReleases.add({
             'type': 'group_song',
             'id': groupSong.id,
@@ -777,34 +769,64 @@ class _HomePageState extends State<HomePage> {
                 artistNames.isNotEmpty ? artistNames : 'Unknown Artist',
             'image': groupSong.image,
             'releaseDate': groupSong.releaseDate,
+            'createdAt': groupSong.createdAt,
             'data': groupSong,
           });
         }
       }
 
-      // Sort by release_date descending (most recent first)
-      combinedReleases.sort((a, b) {
-        final aDate = a['releaseDate'];
-        final bDate = b['releaseDate'];
+      // Process worship team songs
+      if (worshipTeamsResult['success'] == true) {
+        final worshipTeamsData =
+            worshipTeamsResult['worshipTeams'] as List<dynamic>? ?? [];
+        final worshipTeams = worshipTeamsData
+            .map((item) => item is WorshipTeamModel
+                ? item
+                : WorshipTeamModel.fromJson(item as Map<String, dynamic>))
+            .toList();
 
-        if (aDate == null && bDate == null) return 0;
-        if (aDate == null) return 1;
-        if (bDate == null) return -1;
-
-        try {
-          final aDateTime = DateTime.parse(aDate);
-          final bDateTime = DateTime.parse(bDate);
-          return bDateTime.compareTo(aDateTime); // Descending order
-        } catch (e) {
-          return 0;
+        for (var wt in worshipTeams) {
+          combinedReleases.add({
+            'type': 'worship_team',
+            'id': wt.id,
+            'title': wt.songname,
+            'artistName': wt.artistName ?? 'Unknown Artist',
+            'image': wt.image ?? wt.artistImage,
+            'releaseDate': null, // WorshipTeamModel doesn't have releaseDate
+            'createdAt': wt.createdAt,
+            'data': wt,
+          });
         }
+      }
+
+      // Sort by releaseDate descending, then by createdAt descending
+      combinedReleases.sort((a, b) {
+        DateTime? dateA;
+        DateTime? dateB;
+
+        // Try to get DateTime from releaseDate first
+        if (a['releaseDate'] != null) {
+          dateA = DateTime.tryParse(a['releaseDate']);
+        }
+        // Fallback to createdAt
+        dateA ??= a['createdAt'];
+
+        if (b['releaseDate'] != null) {
+          dateB = DateTime.tryParse(b['releaseDate']);
+        }
+        dateB ??= b['createdAt'];
+
+        if (dateA == null && dateB == null) return 0;
+        if (dateA == null) return 1;
+        if (dateB == null) return -1;
+
+        return dateB.compareTo(dateA); // Descending order
       });
 
       // Take only the latest 10 items
-      final latest10 =
-          combinedReleases.length > 10
-              ? combinedReleases.sublist(0, 10)
-              : combinedReleases;
+      final latest10 = combinedReleases.length > 10
+          ? combinedReleases.sublist(0, 10)
+          : combinedReleases;
 
       if (mounted) {
         setState(() {
@@ -1405,11 +1427,12 @@ class _HomePageState extends State<HomePage> {
   ),
   itemBuilder: (context, index, realIndex) {
   final item = recentReleases[index];
-  final isGroupSong = item['type'] == 'group_song';
+  final type = item['type'];
+  final isGroupSong = type == 'group_song';
+  final isWorshipTeam = type == 'worship_team';
 
   return GestureDetector(
     onTap: () async {
-      // ... onTap logic එක (වෙනසක් කර නැත)
       final isConnected = await _connectivityManager.isConnected();
       final isPremiumStr = await UserService.getIsPremium();
       final isPremium = isPremiumStr == '1';
@@ -1429,6 +1452,20 @@ class _HomePageState extends State<HomePage> {
               song: groupSong.songName,
               id: groupSong.id,
               artists: groupSong.artists,
+            ),
+          ),
+        );
+      } else if (isWorshipTeam) {
+        final worshipTeamSong = item['data'] as WorshipTeamModel;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MusicPlayer(
+              backgroundImage: worshipTeamSong.image ?? worshipTeamSong.artistImage ?? '',
+              song: worshipTeamSong.songname,
+              artist: worshipTeamSong.artistName ?? 'Unknown Artist',
+              id: worshipTeamSong.id,
+              isWorshipTeam: true,
             ),
           ),
         );
