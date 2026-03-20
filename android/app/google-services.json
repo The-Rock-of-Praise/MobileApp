@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "422917812627-151lg4rpk86auu0dc5tssdpidj5d8gks.apps.googleusercontent.com",
+          "client_id": "422917812627-vutdu1c7hvh9hn6mlf0a75piktpfjb12.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.therockofpraise.lyrics",
-            "certificate_hash": "c1f8f5a75b388d7e52d1a45a564cedc2a95fbd2f"
+            "certificate_hash": "202dd7291b1425b4d1bbaa96add4048900dae34e"
           }
         },
         {

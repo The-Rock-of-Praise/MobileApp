@@ -16,7 +16,7 @@ class Const {
 
   static const String secret =
       // 'MzcxMTYxNTczMjk2NzIwMDMxOTE4MTQwNjAxOTg3NjY3MDM3NzY=';
-      'NDc3ODcwNDE5MjQwODkzODM1MDU0NDc3MzY2MjMzNjU2MDgxODk=';
+      'OTMyNTIzMjAzNzQzMjY3NTgwMzA0MTcwNDg5MzA2NjYwNTE4Nw==';
 
   static const String merchant_id = '247804';
 }
