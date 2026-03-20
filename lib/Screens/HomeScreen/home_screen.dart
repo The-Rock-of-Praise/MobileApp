@@ -13,6 +13,7 @@ import 'package:lyrics/Service/worship_entity_service.dart';
 import 'package:lyrics/OfflineService/offline_worship_entity_service.dart';
 import 'package:lyrics/OfflineService/offline_user_service.dart';
 import 'package:lyrics/OfflineService/offline_song_service.dart';
+import 'package:lyrics/OfflineService/offline_search_service.dart';
 import 'package:lyrics/OfflineService/sync_manager.dart';
 import 'package:lyrics/Screens/DrawerScreens/about_app.dart';
 import 'package:lyrics/Screens/DrawerScreens/featured_songs.dart';
