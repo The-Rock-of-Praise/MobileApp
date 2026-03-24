@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lyrics/OfflineService/offline_user_service.dart';
 import 'package:lyrics/Screens/AuthScreens/login_page.dart';
 import 'package:lyrics/Screens/Profile/edit_profile.dart';
+import 'package:lyrics/Screens/Profile/delete_account_screen.dart';
 import 'package:lyrics/Service/language_service.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/main_background.dart';
@@ -257,17 +258,18 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildDeleteButton(BuildContext context) {
     return TextButton.icon(
-      onPressed: () async {
-        final userID = await UserService.getUserID();
-        final Uri url = Uri.parse('https://api.therockofpraise.org/delete-account?id=$userID');
-        if (await canLaunchUrl(url)) {
-          await launchUrl(url, mode: LaunchMode.externalApplication);
+      onPressed: () {
+        if (_profileDetails != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DeleteAccountScreen(userDetails: _profileDetails!),
+            ),
+          );
         } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Could not launch delete page')),
-            );
-          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile details not loaded yet')),
+          );
         }
       },
       icon: const Icon(Icons.delete_forever, color: Colors.redAccent, size: 18),

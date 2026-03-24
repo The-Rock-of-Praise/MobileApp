@@ -482,5 +482,45 @@ class UserService {
       return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
     }
   }
+
+  // Request account deletion (Sends email to admin)
+  Future<Map<String, dynamic>> requestAccountDeletion({
+    required String userId,
+    required String fullname,
+    required String email,
+    required String phonenumber,
+  }) async {
+    try {
+      final response = await client.post(
+        Uri.parse('$_baseUrl/request-deletion'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userId': userId,
+          'fullname': fullname,
+          'email': email,
+          'phonenumber': phonenumber,
+        }),
+      );
+
+      final responseData = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'message': responseData['message'] ?? 'Deletion request sent successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': responseData['error'] ?? 'Failed to send deletion request',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'An error occurred: ${e.toString()}',
+      };
+    }
+  }
 }
 
