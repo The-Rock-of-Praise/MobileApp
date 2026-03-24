@@ -152,14 +152,14 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 child: Text(
                   'Permanent Deletion Request',
                   style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-                  textAlign: Center,
+                  textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(height: 15),
               Text(
                 'You are requesting to permanently delete your account from The Rock of Praise. This action will be processed manually by an administrator.',
                 style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
-                textAlign: Center,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
               _buildWarningBox(),
