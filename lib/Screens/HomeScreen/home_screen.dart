@@ -2252,7 +2252,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
-              '${artist.albumCount ?? 0} Albums',
+              '${artist.songCount ?? 0} Songs',
               style: const TextStyle(color: Colors.white70, fontSize: 15),
               textAlign: TextAlign.center,
             ),
