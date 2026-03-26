@@ -8,7 +8,8 @@ import 'worship_team_details.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
-// Needed for conversion if required
+import 'package:lyrics/Screens/all_songs.dart';
+import 'package:lyrics/Service/worship_entity_service.dart';
 
 class WorshipTeamPage extends StatefulWidget {
   const WorshipTeamPage({super.key});
@@ -166,11 +167,15 @@ class _WorshipTeamPageState extends State<WorshipTeamPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => WorshipTeamDetails(
-          worshipTeamId: team.id,
-          worshipTeamName: team.artistName ?? 'Unknown Team',
-          worshipTeamImage: team.image,
-          selectedTeam: team,
+        builder: (context) => AllSongs(
+          worshipArtist: WorshipArtistModel(
+            id: team.id,
+            name: team.artistName ?? 'Unknown Team',
+            image: team.image,
+          ),
+          isWorship: true,
+          artistName: team.artistName ?? 'Unknown Team',
+          backgroundImage: team.image ?? '',
         ),
       ),
     );
