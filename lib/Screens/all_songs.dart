@@ -94,11 +94,21 @@ class _AllSongsState extends State<AllSongs> {
       print('Songs result: $result');
 
       if (result['success']) {
+        final loadedSongs = result['songs'] ?? [];
         setState(() {
-          songs = result['songs'] ?? [];
+          songs = loadedSongs;
           isLoading = false;
           errorMessage = null;
         });
+
+        // If only one song, navigate directly to MusicPlayer
+        if (loadedSongs.length == 1) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _navigateToMusicPlayer(loadedSongs[0]);
+            }
+          });
+        }
       } else {
         setState(() {
           errorMessage = result['message'] ?? 'Failed to load songs';

@@ -123,6 +123,29 @@ class _ArtistAlbumSongDetailsState extends State<ArtistAlbumSongDetails> {
           songs = loadedSongs;
           isLoadingSongs = false;
         });
+
+        // If only one song, navigate directly to MusicPlayer
+        if (loadedSongs.length == 1) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => MusicPlayer(
+                        backgroundImage:
+                            loadedSongs[0].image ??
+                            loadedSongs[0].albumImage ??
+                            '',
+                        song: loadedSongs[0].songname,
+                        artist: loadedSongs[0].artistName ?? widget.artistName,
+                        id: loadedSongs[0].id!,
+                      ),
+                ),
+              );
+            }
+          });
+        }
       } else {
         setState(() {
           isLoadingSongs = false;

@@ -95,10 +95,20 @@ class _WorshipArtistAlbumSongDetailsState extends State<WorshipArtistAlbumSongDe
     try {
       final result = await _worshipService.getWorshipArtistSongs(widget.artistId);
       if (result['success']) {
+        final loadedSongs = List<WorshipSongModel>.from(result['songs']);
         setState(() {
-          songs = List<WorshipSongModel>.from(result['songs']);
+          songs = loadedSongs;
           isLoadingSongs = false;
         });
+
+        // If only one song, navigate directly to MusicPlayer
+        if (loadedSongs.length == 1) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _navigateToSong(loadedSongs[0]);
+            }
+          });
+        }
       } else {
         setState(() {
           isLoadingSongs = false;

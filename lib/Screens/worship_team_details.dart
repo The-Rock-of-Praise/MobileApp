@@ -61,7 +61,27 @@ class _WorshipTeamDetailsState extends State<WorshipTeamDetails> {
       }
       
       if (songsResult['success']) {
-        songs = (songsResult['songs'] as List).map((e) => e as SongModel).toList();
+        final loadedSongs = (songsResult['songs'] as List).map((e) => e as SongModel).toList();
+        songs = loadedSongs;
+
+        // If only one song, navigate directly to MusicPlayer
+        if (loadedSongs.length == 1) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MusicPlayer(
+                    backgroundImage: loadedSongs[0].image ?? loadedSongs[0].albumImage ?? '',
+                    song: loadedSongs[0].songname,
+                    artist: loadedSongs[0].artistName ?? widget.worshipTeamName,
+                    id: loadedSongs[0].id!,
+                  ),
+                ),
+              );
+            }
+          });
+        }
       }
       isLoading = false;
     });
