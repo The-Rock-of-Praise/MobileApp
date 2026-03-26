@@ -81,13 +81,21 @@ jobs:
       - name: Build Release iOS
         run: |
           flutter build ios --release --no-codesign
-          cd build/ios/iphoneos
-          mkdir -p Payload
-          cp -r Runner.app Payload/
+          # Locate Runner.app (it might be in different places depending on Flutter version)
+          APP_PATH=$(find build/ios/iphoneos -name "Runner.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Runner.app not found!"
+            find build/ios -name "*.app" -type d
+            exit 1
+          fi
+          echo "Found Runner.app at: $APP_PATH"
+          mkdir -p build/ios/Payload
+          cp -r "$APP_PATH" build/ios/Payload/
+          cd build/ios
           zip -r Runner.ipa Payload/
 
       - name: Upload iOS IPA
         uses: actions/upload-artifact@v4
         with:
           name: release-ipa
-          path: build/ios/iphoneos/Runner.ipa
+          path: build/ios/Runner.ipa
