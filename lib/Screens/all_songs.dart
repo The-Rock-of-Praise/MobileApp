@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:lyrics/OfflineService/offline_groupe_service.dart';
 import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_artist_service.dart';
+import 'package:lyrics/OfflineService/offline_worship_entity_service.dart';
 import 'package:lyrics/Service/artist_service.dart';
 import 'package:lyrics/Service/language_service.dart';
+import 'package:lyrics/Service/worship_entity_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
 import 'package:lyrics/Screens/music_player.dart';
@@ -13,10 +15,21 @@ import '../Service/song_service.dart';
 
 class AllSongs extends StatefulWidget {
   final ArtistModel? artist;
+  final WorshipArtistModel? worshipArtist;
   final int? artistId;
   final String? artistName;
+  final String? backgroundImage;
+  final bool isWorship;
 
-  const AllSongs({super.key, this.artist, this.artistId, this.artistName});
+  const AllSongs({
+    super.key,
+    this.artist,
+    this.worshipArtist,
+    this.artistId,
+    this.artistName,
+    this.backgroundImage,
+    this.isWorship = false,
+  });
 
   @override
   State<AllSongs> createState() => _AllSongsState();
@@ -24,6 +37,7 @@ class AllSongs extends StatefulWidget {
 
 class _AllSongsState extends State<AllSongs> {
   final OfflineArtistService _artistService = OfflineArtistService();
+  final OfflineWorshipEntityService _worshipService = OfflineWorshipEntityService();
   final ConnectivityManager _connectivityManager = ConnectivityManager();
   List<dynamic> songs = [];
   bool isLoading = true;
@@ -41,6 +55,7 @@ class _AllSongsState extends State<AllSongs> {
   @override
   void dispose() {
     _artistService.dispose();
+    _worshipService.dispose();
     super.dispose();
   }
 
@@ -74,7 +89,8 @@ class _AllSongsState extends State<AllSongs> {
   }
 
   Future<void> _loadArtistSongs() async {
-    if (widget.artist?.id == null && widget.artistId == null) {
+    final artistId = widget.artist?.id ?? widget.worshipArtist?.id ?? widget.artistId;
+    if (artistId == null) {
       setState(() {
         errorMessage = 'No artist ID provided';
         isLoading = false;
@@ -88,8 +104,9 @@ class _AllSongsState extends State<AllSongs> {
         errorMessage = null;
       });
 
-      final artistId = widget.artist?.id ?? widget.artistId!;
-      final result = await _artistService.getArtistSongs(artistId);
+      final result = widget.isWorship
+          ? await _worshipService.getWorshipArtistSongs(artistId)
+          : await _artistService.getArtistSongs(artistId);
 
       print('Songs result: $result');
 
@@ -133,12 +150,17 @@ class _AllSongsState extends State<AllSongs> {
   }
 
   String _getArtistName() {
-    if (widget.artist != null) {
-      return widget.artist!.name;
-    } else if (widget.artistName != null) {
-      return widget.artistName!;
-    }
-    return 'Unknown Artist';
+    return widget.artist?.name ??
+        widget.worshipArtist?.name ??
+        widget.artistName ??
+        'Unknown Artist';
+  }
+
+  String _getArtistImage() {
+    return widget.artist?.image ??
+        widget.worshipArtist?.image ??
+        widget.backgroundImage ??
+        '';
   }
 
   @override

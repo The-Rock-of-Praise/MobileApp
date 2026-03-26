@@ -2192,10 +2192,11 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => WorshipArtistAlbumSongDetails(
-              artistId: artist.id!,
+            (context) => AllSongs(
+              worshipArtist: artist,
+              isWorship: true,
               artistName: artist.name,
-              artistImage: artist.image,
+              backgroundImage: artist.image ?? '',
             ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/offline_worship_entity_service.dart';
 import 'package:lyrics/Screens/DrawerScreens/premium_screen.dart';
 import 'package:lyrics/Screens/worship_artist_album_song_details.dart';
+import 'package:lyrics/Screens/all_songs.dart';
 import 'package:lyrics/Service/worship_entity_service.dart';
 import 'package:lyrics/Service/language_service.dart';
 import 'package:lyrics/Service/user_service.dart';
@@ -431,11 +432,13 @@ class _WorshipArtistPageState extends State<WorshipArtistPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => WorshipArtistAlbumSongDetails(
-          artistId: artist.id!,
-          artistName: artist.name,
-          artistImage: artist.image,
-        ),
+        builder:
+            (context) => AllSongs(
+              worshipArtist: artist,
+              isWorship: true,
+              artistName: artist.name,
+              backgroundImage: artist.image ?? '',
+            ),
       ),
     );
   }
