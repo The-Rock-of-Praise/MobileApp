@@ -2615,32 +2615,39 @@ class _HomePageState extends State<HomePage> {
     ),
     
     // PRO Badge එක
-  //   if (isPremium)
-  //     Positioned(
-  //       right: -5,
-  //       bottom: 0,
-  //       child: Container(
-  //         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-  //         decoration: BoxDecoration(
-  //           gradient: LinearGradient(
-  //             colors: [Colors.redAccent, Colors.red.shade900],
-  //           ),
-  //           borderRadius: BorderRadius.circular(12),
-  //           boxShadow: const [
-  //             BoxShadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2))
-  //           ],
-  //         ),
-  //         child: const Text(
-  //           'PRO',
-  //           style: TextStyle(
-  //             color: Colors.white, 
-  //             fontSize: 9, 
-  //             fontWeight: FontWeight.bold, 
-  //             letterSpacing: 0.5
-  //           ),
-  //         ),
-  //       ),
-  //     ),
+    // PRO Badge
+    if (isPremium)
+      Positioned(
+        right: -2,
+        bottom: -2,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.amber.shade400, Colors.orange.shade800],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.white, width: 1),
+            boxShadow: const [
+              BoxShadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2))
+            ],
+          ),
+          child: const Text(
+            'PRO',
+            style: TextStyle(
+              color: Colors.white, 
+              fontSize: 10, 
+              fontWeight: FontWeight.bold, 
+              letterSpacing: 1.0,
+              shadows: [
+                Shadow(color: Colors.black38, offset: Offset(1, 1), blurRadius: 2)
+              ]
+            ),
+          ),
+        ),
+      ),
   
   
   // 
@@ -2736,22 +2743,38 @@ class _HomePageState extends State<HomePage> {
                     final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageScreen()));
                     if (result != null && result != currentLanguage) _loadData();
                   }),
-                  _buildDrawerItem(Icons.star_outline, 'Featured Songs', showLock: !isPremium, onTap: isPremium ? () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => FeaturedSongs()));
-                  } : null),
-                  _buildDrawerItem(Icons.bookmark_outline, 'My Set List', showLock: !isPremium, onTap: isPremium ? () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MySetList()));
-                  } : null),
-                  _buildDrawerItem(Icons.note_alt_outlined, 'Worship Notes', showLock: !isPremium, onTap: isPremium ? () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => WorshipNotesScreen()));
-                  } : null),
-                  _buildDrawerItem(Icons.auto_stories_outlined, 'How to Read Lyrics', showLock: !isPremium, onTap: isPremium ? () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => HowToReadLyrics()));
-                  } : null),
+                  _buildDrawerItem(Icons.star_outline, 'Featured Songs', showLock: !isPremium, onTap: () {
+                    if (isPremium) {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const FeaturedSongs()));
+                    } else {
+                      _showPremiumDialog(feature: 'Featured Songs');
+                    }
+                  }),
+                  _buildDrawerItem(Icons.bookmark_outline, 'My Set List', showLock: !isPremium, onTap: () {
+                    if (isPremium) {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const MySetList()));
+                    } else {
+                      _showPremiumDialog(feature: 'My Set List');
+                    }
+                  }),
+                  _buildDrawerItem(Icons.note_alt_outlined, 'Worship Notes', showLock: !isPremium, onTap: () {
+                    if (isPremium) {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const WorshipNotesScreen()));
+                    } else {
+                      _showPremiumDialog(feature: 'Worship Notes');
+                    }
+                  }),
+                  _buildDrawerItem(Icons.auto_stories_outlined, 'How to Read Lyrics', showLock: !isPremium, onTap: () {
+                    if (isPremium) {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HowToReadLyrics()));
+                    } else {
+                      _showPremiumDialog(feature: 'How to Read Lyrics');
+                    }
+                  }),
                   
                   if (!isPremium)
                     _buildDrawerItem(Icons.workspace_premium_outlined, 'Go Premium', onTap: () {

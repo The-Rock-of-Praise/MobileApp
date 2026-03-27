@@ -516,6 +516,9 @@ class SyncManager {
       await _syncUserSetlists(userIdInt);
       await _syncWorshipNotes(userIdInt);
 
+      // Refresh premium status from server
+      await UserService().getFullProfile(userId);
+
       print('✅ User data sync completed');
     } catch (e) {
       print('❌ User data sync failed: $e');

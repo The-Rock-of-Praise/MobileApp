@@ -12,6 +12,8 @@ import 'package:lyrics/widgets/main_background.dart';
 import 'package:lyrics/Screens/music_player.dart';
 
 import '../Service/song_service.dart';
+import 'package:lyrics/Screens/DrawerScreens/premium_screen.dart';
+import 'package:lyrics/Service/user_service.dart';
 
 class AllSongs extends StatefulWidget {
   final ArtistModel? artist;
@@ -147,6 +149,170 @@ class _AllSongsState extends State<AllSongs> {
       errorMessage = null;
     });
     await _loadArtistSongs();
+  }
+
+  void _showPremiumDialog({
+    bool isOffline = false,
+    String feature = 'this content',
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.amber.withOpacity(0.3), width: 1),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  isOffline ? Icons.wifi_off : Icons.star,
+                  color: Colors.amber,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  isOffline ? 'Offline Access Restricted' : 'Premium Required',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.amber.withOpacity(0.1),
+                        Colors.orange.withOpacity(0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isOffline) ...[
+                        const Row(
+                          children: [
+                            Icon(Icons.wifi_off, color: Colors.orange, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'You are currently offline',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'To access song lyrics while offline, please upgrade to the Rock of Praise Pro.',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Connect to the internet and upgrade to Pro for full offline access.',
+                          style: TextStyle(color: Colors.white60, fontSize: 14),
+                        ),
+                      ] else ...[
+                        Text(
+                          'Access to $feature requires a Premium subscription.',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Pro Version Includes:',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildPremiumFeatureItem('Full offline access to all lyrics', Icons.menu_book),
+                _buildPremiumFeatureItem('Featured Songs collection', Icons.auto_awesome),
+                _buildPremiumFeatureItem('My Set List to save your favorite songs', Icons.library_music),
+                _buildPremiumFeatureItem('Worship Notes for your personal reflections', Icons.edit_note),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(foregroundColor: Colors.white70),
+              child: Text(isOffline ? 'Use Online Only' : 'Maybe Later'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumScreen()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Upgrade to Pro', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPremiumFeatureItem(String feature, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.amber, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              feature,
+              style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.3),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _getArtistName() {
@@ -312,6 +478,15 @@ class _AllSongsState extends State<AllSongs> {
   }
 
   void _navigateToMusicPlayer(dynamic songData) async {
+    final isConnected = await _connectivityManager.isConnected();
+    final isPremiumStr = await UserService.getIsPremium();
+    final isPremium = isPremiumStr == '1';
+
+    if (!isConnected && !isPremium) {
+      _showPremiumDialog(isOffline: true, feature: 'song lyrics');
+      return;
+    }
+
     final lang = await getLyricscode();
     print('Selected language code: $songData');
 
