@@ -104,7 +104,16 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
 
       final url = Uri.parse(paymentUrl);
       if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
+        await launchUrl(
+          url,
+          mode: LaunchMode.inAppWebView,
+          webViewConfiguration: const WebViewConfiguration(
+            headers: <String, String>{
+              'Referer': 'https://therockofpraise.org/',
+              'Origin': 'https://therockofpraise.org/',
+            },
+          ),
+        );
       }
     } catch (e) {
       _showError('Payment system error: $e');
