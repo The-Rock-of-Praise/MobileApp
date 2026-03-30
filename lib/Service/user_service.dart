@@ -5,8 +5,8 @@ import 'package:lyrics/Models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
-  static const String _baseUrl = 'https://api.therockofpraise.org/api/auth';
-  static const String _baseUrl1 = 'https://api.therockofpraise.org/api';
+  static const String _baseUrl = 'https://therockofpraise.org/api/auth';
+  static const String _baseUrl1 = 'https://therockofpraise.org/api';
   static const String _userIDKey = 'userId';
   static const String _isPremium = 'isPremium';
   final http.Client client;

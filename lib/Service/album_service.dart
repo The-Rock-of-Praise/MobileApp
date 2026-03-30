@@ -117,7 +117,7 @@ class AlbumModel {
 
 class AlbumService {
   final BaseApiService _apiService;
-  static const String _baseUrl = 'https://api.therockofpraise.org/api';
+  static const String _baseUrl = 'https://therockofpraise.org/api';
 
   AlbumService({BaseApiService? apiService})
     : _apiService = apiService ?? BaseApiService();

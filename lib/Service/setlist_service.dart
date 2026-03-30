@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class SetListService {
   static const String baseUrl =
-      'https://api.therockofpraise.org'; // Replace with your API URL
+      'https://therockofpraise.org'; // Replace with your API URL
 
   // Models
   static Map<String, dynamic> _handleResponse(http.Response response) {

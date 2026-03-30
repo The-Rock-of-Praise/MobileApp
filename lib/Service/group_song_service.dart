@@ -5,7 +5,7 @@ import 'package:lyrics/OfflineService/offline_groupe_service.dart';
 
 class GroupSongService {
   static const String baseUrl =
-      'https://api.therockofpraise.org/api'; // Change to your server URL
+      'https://therockofpraise.org/api'; // Change to your server URL
   static String? _authToken;
 
   // Headers for requests

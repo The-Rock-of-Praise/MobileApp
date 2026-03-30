@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class FavoritesService {
   static const String baseUrl =
-      'https://api.therockofpraise.org'; // Replace with your API URL
+      'https://therockofpraise.org'; // Replace with your API URL
 
   // Handle HTTP response
   static Map<String, dynamic> _handleResponse(http.Response response) {

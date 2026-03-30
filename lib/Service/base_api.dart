@@ -6,11 +6,11 @@ class BaseApiService {
 
   static String get baseUrl {
     if (Platform.isAndroid) {
-      return 'https://api.therockofpraise.org/api';
+      return 'https://therockofpraise.org/api';
     } else if (Platform.isIOS) {
-      return 'https://api.therockofpraise.org/api';
+      return 'https://therockofpraise.org/api';
     } else {
-      return 'https://api.therockofpraise.org/api';
+      return 'https://therockofpraise.org/api';
     }
   }
 

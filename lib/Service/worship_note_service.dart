@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WorshipNotesService {
-  static const String _baseUrl = 'https://api.therockofpraise.org/api/worship-notes';
+  static const String _baseUrl = 'https://therockofpraise.org/api/worship-notes';
   final http.Client client;
 
   WorshipNotesService({http.Client? client}) : client = client ?? http.Client();

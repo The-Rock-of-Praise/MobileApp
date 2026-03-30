@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _searchService =
-        OfflineSearchService(baseUrl: 'https://api.therockofpraise.org');
+        OfflineSearchService(baseUrl: 'https://therockofpraise.org');
     _initializeConnectivity();
     loadPremiumStatus();
     _loadThemeSettings();

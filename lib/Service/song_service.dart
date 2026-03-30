@@ -221,7 +221,7 @@ class LyricsModel {
 
 class SongService {
   final BaseApiService _apiService;
-  static const String baseUrl = 'https://api.therockofpraise.org/api';
+  static const String baseUrl = 'https://therockofpraise.org/api';
 
   SongService({BaseApiService? apiService})
     : _apiService = apiService ?? BaseApiService();

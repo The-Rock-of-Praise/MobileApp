@@ -7,7 +7,7 @@ import 'package:lyrics/Service/group_song_service.dart';
 
 class WorshipTeamService {
   final BaseApiService _apiService;
-  static const String baseUrl = 'https://api.therockofpraise.org/api';
+  static const String baseUrl = 'https://therockofpraise.org/api';
   static String? _authToken;
 
   // Headers for requests

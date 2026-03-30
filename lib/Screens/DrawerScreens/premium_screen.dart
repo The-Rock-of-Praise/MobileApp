@@ -96,8 +96,8 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
       final name = _userProfile?['fullname'] ?? 'User';
       final phone = _userProfile?['phonenumber'] ?? "0771234567";
 
-      // Use the server IP from UserService for local testing or the production domain
-      const String serverBaseUrl = 'https://api.therockofpraise.org'; 
+      // Use the production domain with /api prefix
+      const String serverBaseUrl = 'https://therockofpraise.org/api'; 
       
       final paymentUrl = '$serverBaseUrl/payment.html?'
           'id=$userId&email=${Uri.encodeComponent(email)}&name=${Uri.encodeComponent(name)}&mid=${Const.merchant_id}&phone=${Uri.encodeComponent(phone)}';

@@ -1046,7 +1046,7 @@ class OfflineWorshipNotesService {
 // Offline Setlist Service
 
 class SetListService {
-  static const String baseUrl = 'https://api.therockofpraise.org';
+  static const String baseUrl = 'https://therockofpraise.org';
 
   static Map<String, dynamic> _handleResponse(http.Response response) {
     if (response.statusCode == 200) {
