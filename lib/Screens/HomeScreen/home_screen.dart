@@ -1458,6 +1458,7 @@ class _HomePageState extends State<HomePage> {
         );
       } else if (isWorshipTeam) {
         final worshipTeamSong = item['data'] as WorshipTeamModel;
+        
         Navigator.push(
           context,
           MaterialPageRoute(
