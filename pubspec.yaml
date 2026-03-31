@@ -51,7 +51,7 @@ dependencies:
   url_launcher: ^6.3.2
   cached_network_image: ^3.4.1
   path_provider: ^2.1.5
-  
+  payhere_mobilesdk_flutter: ^3.2.2
 
 
   crypto: any

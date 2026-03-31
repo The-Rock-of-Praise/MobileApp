@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:lyrics/Const/const.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/main_background.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:payhere_mobilesdk_flutter/payhere_mobilesdk_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -42,9 +44,15 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
     try {
       final userId = await UserService.getUserID();
       if (userId.isEmpty) return;
+      
       final result = await _userService.getFullProfile(userId);
+      
       if (result['success'] == true) {
-        setState(() => _userProfile = result['profile']);
+        // Add mounted check before setState
+        if (mounted) {
+          setState(() => _userProfile = result['profile']);
+        }
+        
         if (_userProfile?['isPremium'] == 1 || _userProfile?['isPremium'] == true) {
           // Sync successful, premium account is active
           if (mounted) {
@@ -72,7 +80,10 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
     } catch (e) {
       debugPrint('Error: $e');
     } finally {
-      setState(() => _isLoading = false);
+      // Add mounted check before setState
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -80,9 +91,14 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
     try {
       final userId = await UserService.getUserID();
       if (userId.isEmpty) return;
+      
       final result = await _userService.getFullProfile(userId);
+      
       if (result['success'] == true) {
-        setState(() => _userProfile = result['profile']);
+        // Add mounted check before setState
+        if (mounted) {
+          setState(() => _userProfile = result['profile']);
+        }
       }
     } catch (e) {
       debugPrint('Error fetch profile: $e');
@@ -95,28 +111,88 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
       final email = _userProfile?['email'] ?? 'user@example.com';
       final name = _userProfile?['fullname'] ?? 'User';
       final phone = _userProfile?['phonenumber'] ?? "0771234567";
+      final orderId = 'PRO_${userId}_${DateTime.now().millisecondsSinceEpoch}';
 
-      // Use the production domain with /api prefix
-      const String serverBaseUrl = 'https://therockofpraise.org/api'; 
-      
-      final paymentUrl = '$serverBaseUrl/payment.html?'
-          'id=$userId&email=${Uri.encodeComponent(email)}&name=${Uri.encodeComponent(name)}&mid=${Const.merchant_id}&phone=${Uri.encodeComponent(phone)}';
-
-      final url = Uri.parse(paymentUrl);
-      if (await canLaunchUrl(url)) {
-        await launchUrl(
-          url,
-          mode: LaunchMode.inAppWebView,
-          webViewConfiguration: const WebViewConfiguration(
-            headers: <String, String>{
-              'Referer': 'https://therockofpraise.org/',
-              'Origin': 'https://therockofpraise.org/',
-            },
-          ),
-        );
+      // Ensure loading state if not already set by UI
+      if (mounted) {
+        setState(() => _isLoading = true);
       }
+
+      // Fetch the mobile secret from the backend explicitly
+      const String serverBaseUrl = 'https://therockofpraise.org/api'; 
+      final response = await http.get(Uri.parse('$serverBaseUrl/payhere/mobile-secret'));
+      
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load mobile secret from server');
+      }
+
+      final resData = jsonDecode(response.body);
+      final mobileSecret = resData['secret'];
+
+      if (mobileSecret == null || mobileSecret.isEmpty) {
+        throw Exception('Invalid mobile secret received');
+      }
+
+      Map paymentObject = {
+        "sandbox": true,                 // Using sandbox for testing
+        "merchant_id": Const.merchant_id, 
+        "merchant_secret": mobileSecret, 
+        "notify_url": "$serverBaseUrl/payhere/notify",
+        "order_id": orderId,
+        "items": "The Rock of Praise - Pro Version",
+        "amount": "2.99",               // Recurring amount
+        "recurrence": "1 Month",         // Recurring payment frequency
+        "duration": "Forever",            // Recurring payment duration
+        "currency": "USD",
+        "first_name": name.split(' ').first,
+        "last_name": name.split(' ').length > 1 ? name.split(' ').sublist(1).join(' ') : 'User',
+        "email": email,
+        "phone": phone,
+        "address": "Not provided",
+        "city": "Colombo",
+        "country": "Sri Lanka",
+        "delivery_address": "Not provided",
+        "delivery_city": "Colombo",
+        "delivery_country": "Sri Lanka",
+        "custom_1": userId, // Pass userId to the backend for webhook update
+        "custom_2": ""
+      };
+
+      PayHere.startPayment(
+        paymentObject, 
+        (paymentId) {
+          debugPrint("Recurring Payment Success. Payment Id: $paymentId");
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Payment Successful! Now you are a PRO member.'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 4),
+              ),
+            );
+            // Re-fetch profile to update UI immediately
+            _initializeProfile();
+            Navigator.pop(context, true);
+          }
+        }, 
+        (error) { 
+          debugPrint("Recurring Payment Failed. Error: $error");
+          if (mounted) {
+            _showError('Payment Failed: $error');
+          }
+        }, 
+        () { 
+          debugPrint("Recurring Payment Dismissed");
+        }
+      );
     } catch (e) {
-      _showError('Payment system error: $e');
+      if (mounted) {
+        _showError('Payment system error: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
