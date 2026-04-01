@@ -18,4 +18,6 @@ class Const {
       'MzM1NDk0NTQzMDMwNzYwNzQ1NTUyNzcxNzU4NDQ5MTUzNzkyMjMxNg==';
 
   static const String merchant_id = '1234878';
+  
+  static const bool isProduction = false;
 }

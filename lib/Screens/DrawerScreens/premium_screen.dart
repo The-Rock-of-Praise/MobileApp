@@ -69,6 +69,11 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
       }
     } catch (e) {
       debugPrint('Sync error on resume: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to refresh status: $e'), backgroundColor: Colors.orange)
+        );
+      }
     }
   }
 
@@ -134,7 +139,7 @@ class _PremiumScreenState extends State<PremiumScreen> with WidgetsBindingObserv
       }
 
       Map paymentObject = {
-        "sandbox": true,                 // Using sandbox for testing
+        "sandbox": !Const.isProduction, 
         "merchant_id": Const.merchant_id, 
         "merchant_secret": mobileSecret, 
         "notify_url": "$serverBaseUrl/payhere/notify",

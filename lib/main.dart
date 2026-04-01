@@ -37,24 +37,61 @@ void main() async {
     });
     runApp(const MyApp());
   } catch (e) {
-    debugPrint("Initialization Failed: $e");
+    String errorMessage = e.toString();
+    bool isMissingPlugin = errorMessage.contains('MissingPluginException');
+    
     runApp(
       MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
         home: Scaffold(
           body: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
+                  const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                  const SizedBox(height: 20),
                   const Text(
-                    "Initialization Failed",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    "Launch Error",
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
-                  const SizedBox(height: 8),
-                  Text(e.toString(), textAlign: TextAlign.center),
+                  const SizedBox(height: 12),
+                  Text(
+                    isMissingPlugin 
+                      ? "The app's native plugins are not correctly linked."
+                      : "The app failed to initialize correctly.",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, color: Colors.white70),
+                  ),
+                  if (isMissingPlugin) ...[
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.red.withOpacity(0.3)),
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Solution:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                          SizedBox(height: 8),
+                          Text("1. Run 'flutter clean' in your terminal", style: TextStyle(color: Colors.white)),
+                          Text("2. Run 'flutter pub get'", style: TextStyle(color: Colors.white)),
+                          Text("3. Perform a COLD REBUILD (Stop and Start again)", style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+                  SelectableText(
+                    errorMessage,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                  ),
                 ],
               ),
             ),
