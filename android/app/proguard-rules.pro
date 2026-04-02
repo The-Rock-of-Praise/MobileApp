@@ -17,3 +17,4 @@
 
 # sqflite
 -keep class com.tekartik.sqflite.** { *; }
+-dontwarn com.tekartik.sqflite.**
