@@ -24,7 +24,7 @@ jobs:
         with:
           flutter-version: '3.29.0'
           channel: 'stable'
-          cache: true
+          cache: false
 
       - name: Print versions
         run: |
@@ -32,7 +32,9 @@ jobs:
           dart --version
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter clean
+          flutter pub get
 
       - name: Decode Keystore
         run: |
