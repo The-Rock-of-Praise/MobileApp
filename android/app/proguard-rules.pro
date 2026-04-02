@@ -14,3 +14,6 @@
 -keep class lk.payhere.androidsdk.models.PaymentMethodResponse { *; }
 -keep class lk.payhere.androidsdk.models.** { *; }
 -keep class lk.payhere.androidsdk.** { *; }
+
+# sqflite
+-keep class com.tekartik.sqflite.** { *; }
