@@ -1,6 +1,8 @@
 // database/database_helper.dart
+import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -15,6 +17,11 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
+    if (Platform.isAndroid || Platform.isWindows || Platform.isLinux) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
     String path = join(await getDatabasesPath(), 'lyrics_app_offline.db');
     return await openDatabase(
       path,
