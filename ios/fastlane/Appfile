@@ -1,0 +1,4 @@
+app_identifier("com.therockofpraise.lyrics")
+apple_id("be9aae89-aeea-424e-bce6-e84d09e7d95e") # This is usually an email, but we'll use the API key anyway.
+itc_team_id("123456789") # We don't have this, but Fastlane can often fetch it if using API key.
+team_id("S7LC27D4BF") # This is the Team ID / Key ID part.

@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lyrics/Controllers/profile_controller.dart';
 import 'package:lyrics/OfflineService/offline_user_service.dart';
 import 'package:lyrics/Screens/AuthScreens/login_page.dart';
 import 'package:lyrics/Screens/Profile/edit_profile.dart';
@@ -20,11 +22,11 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  final ProfileController profileController = Get.find<ProfileController>();
   final OfflineUserService _userService = OfflineUserService();
   Map<String, dynamic>? _profileDetails;
   bool _isLoading = true;
   String _preferredLanguage = 'English';
-  bool isPremium = false;
 
   @override
   void initState() {
@@ -36,7 +38,7 @@ class _ProfileState extends State<Profile> {
     setState(() => _isLoading = true);
     await _loadProfileData();
     await _loadPreferredLanguage();
-    await loadPremiumStatus();
+    await profileController.refreshStatus();
     setState(() => _isLoading = false);
   }
 
@@ -45,10 +47,7 @@ class _ProfileState extends State<Profile> {
     setState(() => _preferredLanguage = language);
   }
 
-  Future<void> loadPremiumStatus() async {
-    final status = await UserService.getIsPremium();
-    setState(() => isPremium = status == '1');
-  }
+  // Removed loadPremiumStatus as it's now handled by profileController.refreshStatus()
 
   Future<void> _loadProfileData() async {
     try {
@@ -162,11 +161,28 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  Obx(() => Positioned(
                     bottom: -40,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: Colors.blueAccent, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        gradient: profileController.isPremium.value 
+                          ? const LinearGradient(
+                              colors: [Colors.orangeAccent, Colors.purpleAccent, Colors.blueAccent],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                        color: profileController.isPremium.value ? null : Colors.blueAccent, 
+                        shape: BoxShape.circle,
+                        boxShadow: profileController.isPremium.value ? [
+                          BoxShadow(
+                            color: Colors.orangeAccent.withOpacity(0.5),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          )
+                        ] : null,
+                      ),
                       child: CircleAvatar(
                         radius: 45,
                         backgroundColor: Colors.grey[800],
@@ -177,16 +193,35 @@ class _ProfileState extends State<Profile> {
                             ? const Icon(Icons.person, size: 50, color: Colors.white) : null,
                       ),
                     ),
-                  ),
+                  )),
                 ],
               ),
               const SizedBox(height: 50),
 
               // Name & Email (API data)
-              Text(
-                _profileDetails?['fullname'] ?? 'No name',
-                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-              ),
+              Obx(() => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _profileDetails?['fullname'] ?? 'No name',
+                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  if (profileController.isPremium.value) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [Colors.orangeAccent, Colors.redAccent]),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        'PRO', 
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)
+                      ),
+                    ),
+                  ],
+                ],
+              )),
               Text(
                 _profileDetails?['email'] ?? 'No email',
                 style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
@@ -198,7 +233,7 @@ class _ProfileState extends State<Profile> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    _buildTopInfoBox(isPremium ? "Pro" : "Free", "Account"),
+                    Obx(() => _buildTopInfoBox(profileController.isPremium.value ? "Pro" : "Free", "Account")),
                     const SizedBox(width: 15),
                     _buildTopInfoBox(_preferredLanguage, "Language"),
                   ],

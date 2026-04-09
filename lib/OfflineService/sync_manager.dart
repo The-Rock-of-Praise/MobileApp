@@ -8,6 +8,7 @@ import 'package:lyrics/Service/song_service.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/Service/setlist_service.dart';
 import 'package:lyrics/Service/worship_note_service.dart';
+import 'package:lyrics/Service/worship_entity_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -59,24 +60,36 @@ class SyncManager {
       await _syncSongs();
 
       // Step 4: Sync Group Songs (if available)
-      _notifyProgress('Syncing group songs...', 4, includeImageCaching ? 7 : 6);
+      _notifyProgress('Syncing group songs...', 4, includeImageCaching ? 10 : 9);
       await _syncGroupSongs();
 
-      // Step 5: Sync User Data
-      _notifyProgress('Syncing user data...', 5, includeImageCaching ? 7 : 6);
+      // Step 5: Sync Worship Artists
+      _notifyProgress('Syncing worship artists...', 5, includeImageCaching ? 10 : 9);
+      await _syncWorshipArtists();
+
+      // Step 6: Sync Worship Albums
+      _notifyProgress('Syncing worship albums...', 6, includeImageCaching ? 10 : 9);
+      await _syncWorshipAlbums();
+
+      // Step 7: Sync Worship Songs
+      _notifyProgress('Syncing worship songs...', 7, includeImageCaching ? 10 : 9);
+      await _syncWorshipSongs();
+
+      // Step 8: Sync User Data
+      _notifyProgress('Syncing user data...', 8, includeImageCaching ? 10 : 9);
       await _syncUserData();
 
-      // Step 6: Cache Images Proactively
+      // Step 9: Cache Images Proactively
       if (includeImageCaching) {
-        _notifyProgress('Caching images...', 6, 7);
+        _notifyProgress('Caching images...', 9, 10);
         await _cacheAllImages();
       }
 
-      // Step 7: Update sync time and cleanup
+      // Step 10: Update sync time and cleanup
       _notifyProgress(
         'Finalizing sync...',
-        includeImageCaching ? 7 : 6,
-        includeImageCaching ? 7 : 6,
+        includeImageCaching ? 10 : 9,
+        includeImageCaching ? 10 : 9,
       );
       await _updateLastSyncTime();
       await _cleanupOldData();
@@ -367,6 +380,135 @@ class SyncManager {
     } catch (e) {
       print('❌ Group song sync failed: $e');
       _notifyMessage('❌ Group song sync failed: $e', true);
+    }
+  }
+
+  Future<void> _syncWorshipArtists() async {
+    try {
+      print('📡 Syncing worship artists...');
+      final worshipService = WorshipEntityService();
+      final result = await worshipService.getAllWorshipArtists();
+
+      if (result['success']) {
+        final artistsData = result['artists'] as List<WorshipArtistModel>;
+        final db = await _dbHelper.database;
+        final imageUrls = <String>[];
+
+        for (final artist in artistsData) {
+          final artistJson = artist.toJson();
+          if (artist.image != null && artist.image!.isNotEmpty) {
+            imageUrls.add(artist.image!);
+          }
+
+          artistJson['synced'] = 1;
+          artistJson['updated_at'] = DateTime.now().toIso8601String();
+
+          await db.insert(
+            'worship_artists',
+            artistJson,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+
+        print('✅ Synced ${artistsData.length} worship artists');
+        if (imageUrls.isNotEmpty) {
+          _cacheImagesInBackground('worship_artist', imageUrls);
+        }
+      }
+    } catch (e) {
+      print('❌ Worship artist sync failed: $e');
+      _notifyMessage('❌ Worship artist sync failed: $e', true);
+    }
+  }
+
+  Future<void> _syncWorshipAlbums() async {
+    try {
+      print('📡 Syncing worship albums...');
+      final worshipService = WorshipEntityService();
+      final result = await worshipService.getLatestWorshipAlbums();
+
+      if (result['success']) {
+        final albumsData = result['albums'] as List<WorshipAlbumModel>;
+        final db = await _dbHelper.database;
+        final imageUrls = <String>[];
+
+        for (final album in albumsData) {
+          final albumJson = album.toJson();
+          if (album.image != null && album.image!.isNotEmpty) {
+            imageUrls.add(album.image!);
+          }
+          if (album.artistImage != null && album.artistImage!.isNotEmpty) {
+            imageUrls.add(album.artistImage!);
+          }
+
+          albumJson['synced'] = 1;
+          albumJson['updated_at'] = DateTime.now().toIso8601String();
+
+          await db.insert(
+            'worship_albums',
+            albumJson,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+
+        print('✅ Synced ${albumsData.length} worship albums');
+        if (imageUrls.isNotEmpty) {
+          _cacheImagesInBackground('worship_album', imageUrls);
+        }
+      }
+    } catch (e) {
+      print('❌ Worship album sync failed: $e');
+      _notifyMessage('❌ Worship album sync failed: $e', true);
+    }
+  }
+
+  Future<void> _syncWorshipSongs() async {
+    try {
+      print('📡 Syncing worship songs...');
+      final worshipService = WorshipEntityService();
+      
+      // Since there's no "getAllWorshipSongs", we sync songs for each worship artist
+      final db = await _dbHelper.database;
+      final artists = await db.query('worship_artists');
+      
+      int totalSynced = 0;
+      final imageUrls = <String>[];
+
+      for (final artistEntry in artists) {
+        final artistId = artistEntry['id'] as int;
+        final result = await worshipService.getWorshipArtistSongs(artistId);
+        
+        if (result['success']) {
+          final songsData = result['songs'] as List<WorshipSongModel>;
+          for (final song in songsData) {
+            final songJson = song.toJson();
+            if (song.image != null && song.image!.isNotEmpty) {
+              imageUrls.add(song.image!);
+            }
+            if (song.albumImage != null && song.albumImage!.isNotEmpty) {
+              imageUrls.add(song.albumImage!);
+            }
+
+            songJson['synced'] = 1;
+            songJson['updated_at'] = DateTime.now().toIso8601String();
+
+            await db.insert(
+              'worship_teams', // Songs are stored in worship_teams table
+              songJson,
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+            totalSynced++;
+          }
+        }
+      }
+
+      print('✅ Synced $totalSynced worship songs');
+      if (imageUrls.isNotEmpty) {
+        _cacheImagesInBackground('worship_song', imageUrls);
+      }
+    } catch (e) {
+      print('❌ Worship song sync failed: $e');
+      _notifyMessage('❌ Worship song sync failed: $e', true);
     }
   }
 
@@ -663,6 +805,9 @@ class SyncManager {
       'setlist_songs',
       'worship_notes',
       'group_songs',
+      'worship_artists',
+      'worship_albums',
+      'worship_teams',
     ];
     final status = <String, int>{};
 

@@ -14,10 +14,10 @@ class Const {
     stops: [0.1, 0.99], // 173857 color stops at 78%
   );
 
-  static const String secret =
-      'MzM1NDk0NTQzMDMwNzYwNzQ1NTUyNzcxNzU4NDQ5MTUzNzkyMjMxNg==';
+  // static const String secret =
+  //     'MzM1NDk0NTQzMDMwNzYwNzQ1NTUyNzcxNzU4NDQ5MTUzNzkyMjMxNg==';
 
-  static const String merchant_id = '1234878';
+  static const String merchant_id = '247804';
   
-  static const bool isProduction = false;
+  static const bool isProduction = true;
 }

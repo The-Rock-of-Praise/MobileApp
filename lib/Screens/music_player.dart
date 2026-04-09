@@ -553,9 +553,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
           _dataSource = result['source'];
         });
 
-        //_showDataSourceIndicator(_dataSource ?? 'unknown');
-
         if (lyricsData == null) {
+          if (widget.lyrics != null && widget.lyrics!.isNotEmpty) {
+            _usePassedLyricsAsFallback();
+            return;
+          }
           print('Lyrics data is null');
           setState(() {
             multiLanguageLyrics.clear();
@@ -616,6 +618,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 'No lyrics available for this format';
           });
         }
+      } else if (widget.lyrics != null && widget.lyrics!.isNotEmpty) {
+        _usePassedLyricsAsFallback();
+        return;
       } else {
         print('API returned failure: ${result['message']}');
         setState(() {
@@ -649,6 +654,25 @@ class _MusicPlayerState extends State<MusicPlayer> {
         isLoadingLyrics = false;
       });
     }
+  }
+
+  void _usePassedLyricsAsFallback() {
+    print('Using passed lyrics as fallback');
+    setState(() {
+      multiLanguageLyrics.clear();
+      // Map to an appropriate display order based on current format
+      String lang = 'en'; // Default
+      if (selectedLyricsFormat.contains('sinhala')) {
+        lang = 'si';
+      } else if (selectedLyricsFormat.contains('tamil')) {
+        lang = 'ta';
+      }
+
+      multiLanguageLyrics[lang] = widget.lyrics!;
+      _currentDisplayOrder = [lang];
+      _dataSource = 'passed';
+      isLoadingLyrics = false;
+    });
   }
 
   Widget _buildLyricsContent() {

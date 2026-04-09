@@ -433,11 +433,10 @@ class _WorshipArtistPageState extends State<WorshipArtistPage> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => AllSongs(
-              worshipArtist: artist,
-              isWorship: true,
+            (context) => WorshipArtistAlbumSongDetails(
+              worshipTeamId: artist.id!,
               artistName: artist.name,
-              backgroundImage: artist.image ?? '',
+              artistImage: artist.image,
             ),
       ),
     );

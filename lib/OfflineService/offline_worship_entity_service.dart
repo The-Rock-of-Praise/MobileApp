@@ -116,6 +116,24 @@ class OfflineWorshipEntityService {
     return await _getCachedWorshipArtistSongs(artistId);
   }
 
+  // Get album songs with offline support
+  Future<Map<String, dynamic>> getWorshipAlbumSongs(int albumId) async {
+    final isConnected = await _connectivityManager.isConnected();
+    if (isConnected) {
+      try {
+        final result = await _onlineService.getWorshipAlbumSongs(albumId);
+        if (result['success']) {
+          final songs = List<WorshipSongModel>.from(result['songs']);
+          await _cacheWorshipSongs(songs);
+          return {...result, 'source': 'online'};
+        }
+      } catch (e) {
+        print('⚠️ Online worship songs for album $albumId fetch failed: $e');
+      }
+    }
+    return await _getCachedWorshipAlbumSongs(albumId);
+  }
+
   // Caching methods
   Future<void> _cacheWorshipArtists(List<WorshipArtistModel> artists) async {
     final db = await _dbHelper.database;
@@ -208,6 +226,18 @@ class OfflineWorshipEntityService {
       'worship_teams',
       where: 'artist_id = ?',
       whereArgs: [artistId],
+      orderBy: 'songname ASC',
+    );
+    final items = maps.map((e) => WorshipSongModel.fromJson(e)).toList();
+    return {'success': true, 'songs': items, 'source': 'cache'};
+  }
+
+  Future<Map<String, dynamic>> _getCachedWorshipAlbumSongs(int albumId) async {
+    final db = await _dbHelper.database;
+    final maps = await db.query(
+      'worship_teams',
+      where: 'album_id = ?',
+      whereArgs: [albumId],
       orderBy: 'songname ASC',
     );
     final items = maps.map((e) => WorshipSongModel.fromJson(e)).toList();

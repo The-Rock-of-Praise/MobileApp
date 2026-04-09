@@ -4,8 +4,12 @@ import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/database_helper.dart';
 import 'package:lyrics/OfflineService/sync_manager.dart';
 import 'package:lyrics/Screens/splash_screen.dart';
+import 'package:lyrics/Service/user_service.dart';
+import 'package:lyrics/Controllers/payment_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:get/get.dart';
+import 'package:lyrics/Controllers/profile_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +35,13 @@ void main() async {
     await Firebase.initializeApp();
     await initializeDateFormatting();
 
+    // 💎 SESSION VALIDATION: Check Pro status & Due Date on Launch
+    final String userId = await UserService.getUserID();
+    if (userId.isNotEmpty) {
+      debugPrint("💎 Validating subscription for user: $userId");
+      await PaymentController().validateSubscriptionStatus(userId);
+    }
+
     connectivityManager.connectivityStream.listen((result) {
       if (result != ConnectivityResult.none) {
         SyncManager().performFullSync();
@@ -49,7 +60,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // Inject ProfileController globally to manage premium status reactively
+    Get.put(ProfileController(), permanent: true);
+
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'The Rock Of Praise',
       theme: ThemeData(

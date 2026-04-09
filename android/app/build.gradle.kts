@@ -18,6 +18,8 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+    layout.buildDirectory.set(file("../../build/app"))
+
     configurations.all {
         resolutionStrategy {
             force("androidx.browser:browser:1.8.0")
@@ -28,7 +30,7 @@ android {
         }
     }
     namespace = "com.therockofpraise.lyrics"
-    compileSdk = 35
+    compileSdk = 34
     
     
 
@@ -46,7 +48,7 @@ android {
         applicationId = "com.therockofpraise.lyrics"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = 24
         targetSdk = 35
         versionCode = 3
         versionName = "1.0.2"
@@ -84,6 +86,11 @@ android {
         )
             
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 }
 

@@ -179,10 +179,10 @@ class WorshipSongModel {
   factory WorshipSongModel.fromJson(Map<String, dynamic> json) {
     return WorshipSongModel(
       id: json['id'],
-      songname: json['songname'] ?? '',
-      lyricsSi: json['lyrics_si'],
-      lyricsEn: json['lyrics_en'],
-      lyricsTa: json['lyrics_ta'],
+      songname: json['songname'] ?? json['title'] ?? '',
+      lyricsSi: json['lyrics_si'] ?? (json['language'] == 'si' ? json['content'] : null),
+      lyricsEn: json['lyrics_en'] ?? (json['language'] == 'en' ? json['content'] : null),
+      lyricsTa: json['lyrics_ta'] ?? (json['language'] == 'ta' ? json['content'] : null),
       artistId: json['artist_id'] ?? 0,
       albumId: json['album_id'],
       duration: json['duration'],
@@ -363,18 +363,8 @@ class WorshipEntityService {
 
   // Get worship album's songs
   Future<Map<String, dynamic>> getWorshipAlbumSongs(int albumId) async {
-    // Note: The backend worshipSongs.js might not have a direct endpoint for album songs,
-    // but typically it's /worship-albums/:id/songs (if added) or we filter all songs.
-    // Looking at worshipAlbum.js, it doesn't have it.
-    // Let's check worshipSongs.js again.
-    // worshipSongs.js doesn't have /album/:id either.
-    // Wait, let's see worshipArtist.js again. It has /:id/albums and /:id/songs.
-    // I'll implement it by fetching all songs and filtering if needed, or check if there's a better endpoint.
-    // Actually, I'll assume we might need a search or filter if no direct endpoint exists.
-    // But for now, let's just use the artist songs if that's what's available.
     try {
-      // Trying a hypothetical endpoint /worship-albums/:id/songs
-      final result = await _apiService.get('/worship-albums/$albumId/songs');
+      final result = await _apiService.get('/worship-songs/album/$albumId');
       if (result['success']) {
         final List<dynamic> data = result['data']['data'] ?? [];
         final List<WorshipSongModel> items =
@@ -389,6 +379,7 @@ class WorshipEntityService {
       return {'success': false, 'message': e.toString()};
     }
   }
+
 
   void dispose() {
     _apiService.dispose();

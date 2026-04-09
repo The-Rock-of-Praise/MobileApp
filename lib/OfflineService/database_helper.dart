@@ -1,8 +1,6 @@
 // database/database_helper.dart
-import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -17,15 +15,10 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    if (Platform.isAndroid || Platform.isWindows || Platform.isLinux) {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    }
-
     String path = join(await getDatabasesPath(), 'lyrics_app_offline.db');
     return await openDatabase(
       path,
-      version: 10, // Incremented to refresh profile cache schema
+      version: 12, // Incremented to add album fields to worship_teams
       onCreate: _createTables,
       onUpgrade: _onUpgrade,
     );
@@ -155,6 +148,8 @@ class DatabaseHelper {
         bio TEXT,
         profile_image TEXT,
         account_type TEXT,
+        due_date TEXT,
+        payment_status TEXT DEFAULT 'pending',
         created_at TEXT,
         updated_at TEXT,
         synced INTEGER DEFAULT 0,
@@ -252,11 +247,16 @@ class DatabaseHelper {
         artist_id INTEGER,
         artist_name TEXT,
         artist_image TEXT,
+        album_id INTEGER,
+        album_name TEXT,
+        album_image TEXT,
+        track_number INTEGER,
         duration INTEGER,
         notes TEXT,
         image TEXT,
         artist_languages TEXT,
         language TEXT,
+        release_date TEXT,
         created_at TEXT,
         updated_at TEXT,
         synced INTEGER DEFAULT 0
@@ -371,38 +371,71 @@ class DatabaseHelper {
     print('Upgrading database from version $oldVersion to $newVersion');
 
     if (oldVersion < 2) {
-      // Add missing columns to existing tables
       await _addMissingColumns(db);
     }
-
     if (oldVersion < 3) {
-      // Add group songs tables
       await _addGroupSongsTables(db);
     }
-
     if (oldVersion < 4) {
-      // Add language column to albums table
       await _addLanguageColumnToAlbums(db);
     }
-
     if (oldVersion < 5) {
-      // Add worship teams table
       await _addWorshipTeamsTable(db);
     }
-
     if (oldVersion < 6) {
-      // Add release_date column to songs table
       await _addReleaseDateToSongs(db);
     }
-
     if (oldVersion < 7) {
-      // Add total_song_count column to artists table
       await _addTotalSongCountToArtists(db);
     }
-
     if (oldVersion < 9) {
-      // Add notifications table
       await _addNotificationsTable(db);
+    }
+    if (oldVersion < 11) {
+      await _upgradeToV11(db);
+    }
+    if (oldVersion < 12) {
+      await _upgradeToV12(db);
+    }
+  }
+
+  Future<void> _upgradeToV11(Database db) async {
+    try {
+      // Check if columns already exist before adding
+      if (!await _columnExists(db, 'user_profile_details', 'due_date')) {
+        await db.execute('ALTER TABLE user_profile_details ADD COLUMN due_date TEXT');
+      }
+      if (!await _columnExists(db, 'user_profile_details', 'payment_status')) {
+        await db.execute(
+          'ALTER TABLE user_profile_details ADD COLUMN payment_status TEXT DEFAULT "pending"',
+        );
+      }
+      print('✅ Upgraded database to v11');
+    } catch (e) {
+      print('⚠️ Error upgrading to v11: $e');
+    }
+  }
+
+  Future<void> _upgradeToV12(Database db) async {
+    try {
+      if (!await _columnExists(db, 'worship_teams', 'album_id')) {
+        await db.execute('ALTER TABLE worship_teams ADD COLUMN album_id INTEGER');
+      }
+      if (!await _columnExists(db, 'worship_teams', 'album_name')) {
+        await db.execute('ALTER TABLE worship_teams ADD COLUMN album_name TEXT');
+      }
+      if (!await _columnExists(db, 'worship_teams', 'album_image')) {
+        await db.execute('ALTER TABLE worship_teams ADD COLUMN album_image TEXT');
+      }
+      if (!await _columnExists(db, 'worship_teams', 'track_number')) {
+        await db.execute('ALTER TABLE worship_teams ADD COLUMN track_number INTEGER');
+      }
+      if (!await _columnExists(db, 'worship_teams', 'release_date')) {
+        await db.execute('ALTER TABLE worship_teams ADD COLUMN release_date TEXT');
+      }
+      print('✅ Upgraded database to v12');
+    } catch (e) {
+      print('⚠️ Error upgrading to v12: $e');
     }
   }
 
@@ -488,11 +521,16 @@ class DatabaseHelper {
           artist_id INTEGER,
           artist_name TEXT,
           artist_image TEXT,
+          album_id INTEGER,
+          album_name TEXT,
+          album_image TEXT,
+          track_number INTEGER,
           duration INTEGER,
           notes TEXT,
           image TEXT,
           artist_languages TEXT,
           language TEXT,
+          release_date TEXT,
           created_at TEXT,
           updated_at TEXT,
           synced INTEGER DEFAULT 0
@@ -800,6 +838,50 @@ class DatabaseHelper {
     } catch (e) {
       return false;
     }
+  }
+
+  // --- Premium & Status Methods ---
+
+  Future<void> updateUserPremiumStatus(int userId, bool isPremium, {String? dueDate, String? paymentStatus}) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      // Update users table
+      await txn.update(
+        'users',
+        {'isPremium': isPremium ? 1 : 0, 'updated_at': DateTime.now().toIso8601String()},
+        where: 'id = ?',
+        whereArgs: [userId],
+      );
+
+      // Update user_profile_details table
+      await txn.update(
+        'user_profile_details',
+        {
+          'account_type': isPremium ? 'Pro' : 'Free',
+          if (dueDate != null) 'due_date': dueDate,
+          if (paymentStatus != null) 'payment_status': paymentStatus,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'user_id = ?',
+        whereArgs: [userId],
+      );
+    });
+    print('✅ Updated local premium status for user $userId (Pro: $isPremium)');
+  }
+
+  Future<Map<String, dynamic>?> getUserPremiumStatus(int userId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> results = await db.query(
+      'user_profile_details',
+      columns: ['account_type', 'due_date', 'payment_status'],
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
+
+    if (results.isNotEmpty) {
+      return results.first;
+    }
+    return null;
   }
 
   Future<void> close() async {

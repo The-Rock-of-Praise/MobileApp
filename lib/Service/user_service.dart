@@ -343,6 +343,12 @@ class UserService {
     File imageFile,
   ) async {
     try {
+      print('🚀 Starting image upload for user $userId. File: ${imageFile.path}');
+      
+      if (!await imageFile.exists()) {
+        return {'success': false, 'message': 'Image file does not exist locally.'};
+      }
+
       // Create multipart request
       var request = http.MultipartRequest(
         'POST',
@@ -351,25 +357,49 @@ class UserService {
 
       request.files.add(
         await http.MultipartFile.fromPath(
-          'image', // This must match the field name your backend expects
+          'image',
           imageFile.path,
         ),
       );
-      // Send the request
-      var response = await request.send();
-      var responseData = await response.stream.bytesToString();
-      var jsonResponse = json.decode(responseData);
-      print('image upload $responseData');
-      if (response.statusCode == 200) {
+
+      // Send the request with a timeout (60 seconds for large images)
+      var streamedResponse = await request.send().timeout(
+        const Duration(seconds: 60),
+        onTimeout: () {
+          throw Exception('Upload timed out. Please check your connection.');
+        },
+      );
+
+      var responseData = await streamedResponse.stream.bytesToString();
+      print('📡 Server Response ($userId): $responseData');
+
+      if (responseData.trim().isEmpty) {
+        return {'success': false, 'message': 'Server returned an empty response.'};
+      }
+
+      // Safeguard against non-JSON responses (like HTML error pages)
+      Map<String, dynamic> jsonResponse;
+      try {
+        jsonResponse = json.decode(responseData);
+      } catch (e) {
+        print('❌ JSON Decode Error: $e. Response was: $responseData');
+        return {
+          'success': false, 
+          'message': 'Server returned an invalid format. Please try again later.'
+        };
+      }
+
+      if (streamedResponse.statusCode == 200) {
         return {'success': true, 'imageUrl': jsonResponse['imageUrl']};
       } else {
         return {
           'success': false,
-          'message': jsonResponse['error'] ?? 'Failed to upload image',
+          'message': jsonResponse['error'] ?? jsonResponse['message'] ?? 'Failed to upload image (${streamedResponse.statusCode})',
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'Error uploading image: $e'};
+      print('💥 uploadProfileImage Exception: $e');
+      return {'success': false, 'message': 'Error uploading image: ${e.toString()}'};
     }
   }
 

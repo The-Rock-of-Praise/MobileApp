@@ -51,7 +51,15 @@ class _EditProfileState extends State<EditProfile> {
   Future<void> _loadUserData() async {
     setState(() => _isLoading = true);
     try {
-      final userResult = await _userService.getCurrentUserProfile();
+      // Attempt to load user profile. For brand-new Google/Apple accounts, the
+      // first fetch may fail if data hasn't fully propagated yet — retry once.
+      Map<String, dynamic> userResult = await _userService.getCurrentUserProfile();
+      if (!userResult['success']) {
+        print('DEBUG: First profile fetch failed, retrying once after delay...');
+        await Future.delayed(const Duration(milliseconds: 600));
+        userResult = await _userService.getCurrentUserProfile();
+      }
+
       if (userResult['success'] && userResult['user'] != null) {
         _currentUser = userResult['user'] as UserModel;
         _nameController.text = _currentUser!.fullname;
@@ -96,45 +104,106 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> _saveProfile() async {
-    if (_nameController.text.isEmpty || _emailController.text.isEmpty) {
+    // Guard against double-submit
+    if (_isUpdating) return;
+
+    if (_nameController.text.trim().isEmpty || _emailController.text.trim().isEmpty) {
       _showSnackBar('Name and Email are required');
       return;
     }
 
     setState(() => _isUpdating = true);
+    
+    // Show a persistent loading snackbar if it's a slow operation
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+            SizedBox(width: 20),
+            Text('Updating profile... Please wait'),
+          ],
+        ),
+        duration: Duration(seconds: 30), // Will be dismissed manually
+      ),
+    );
+
     try {
+      // Step 1: Upload profile image if a new one was selected
       if (_selectedImage != null) {
         final userId = await UserService.getUserID();
-        final uploadResult = await _userService.uploadProfileImage(int.parse(userId.toString()), _selectedImage!);
-        if (uploadResult['success']) _profileImageUrl = uploadResult['imageUrl'];
+        if (userId.isEmpty) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          _showSnackBar('Session expired. Please log in again.');
+          return;
+        }
+
+        try {
+          print('DEBUG: Attempting to upload image for userId: $userId');
+          final uploadResult = await _userService.uploadProfileImage(
+            int.parse(userId),
+            _selectedImage!,
+          );
+          
+          if (uploadResult['success']) {
+            _profileImageUrl = uploadResult['imageUrl'];
+            print('DEBUG: Image upload success: $_profileImageUrl');
+          } else {
+            print('DEBUG: Image upload failed: ${uploadResult['message']}');
+            _showSnackBar('Image upload failed: ${uploadResult['message'] ?? 'Unknown error'}. Saving other details...');
+          }
+        } catch (e) {
+          print('DEBUG: Image upload exception: $e');
+          _showSnackBar('Connection error while uploading image. Saving other details...');
+        }
       }
 
-      await _userService.updateCurrentUserProfile(
-        fullname: _nameController.text,
-        email: _emailController.text,
-        phonenumber: _phoneController.text,
-      );
+      // Step 2: Update basic user info (name, email, phone)
+      try {
+        final basicUpdate = await _userService.updateCurrentUserProfile(
+          fullname: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          phonenumber: _phoneController.text.trim(),
+        );
+        if (!basicUpdate['success']) {
+           print('DEBUG: basicUpdate failed: ${basicUpdate['message']}');
+        }
+      } catch (e) {
+        print('DEBUG: updateCurrentUserProfile error: $e');
+      }
 
+      // Step 3: Update extended profile details
       final userId = await UserService.getUserID();
       final profileResult = await _userService.updateFullProfile(
         userId: userId,
-        country: _countryController.text,
+        country: _countryController.text.trim(),
         dateOfBirth: _apiDateOfBirth,
         gender: _genderController.text,
         preferredLanguage: _languageController.text,
-        bio: _bioController.text,
+        bio: _bioController.text.trim(),
         profileImage: _profileImageUrl,
         interests: selectedInterests,
       );
 
+      ScaffoldMessenger.of(context).clearSnackBars();
+
       if (profileResult['success']) {
         _showSnackBar('Profile updated successfully!');
-        Navigator.of(context).pop(true); // Auto back on success
+        if (mounted) {
+          // Give users a moment to see the success message
+          await Future.delayed(const Duration(milliseconds: 500));
+          Navigator.of(context).pop(true);
+        }
+      } else {
+        _showSnackBar('Could not save profile details: ${profileResult['message'] ?? 'Please try again.'}');
       }
     } catch (e) {
-      _showSnackBar('Error: ${e.toString()}');
+      ScaffoldMessenger.of(context).clearSnackBars();
+      _showSnackBar('A system error occurred: ${e.toString()}');
+      print('DEBUG: _saveProfile unexpected error: $e');
     } finally {
-      setState(() => _isUpdating = false);
+      if (mounted) setState(() => _isUpdating = false);
     }
   }
 

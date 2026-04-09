@@ -39,6 +39,7 @@ import 'package:lyrics/widgets/cached_image_widget.dart';
 import 'package:lyrics/widgets/main_background.dart';
 import 'package:lyrics/Screens/worship_artist_page.dart';
 import 'package:lyrics/Screens/worship_artist_album_song_details.dart';
+import 'package:lyrics/Screens/artist_album_song_details.dart';
 import 'package:lyrics/Screens/notification_screen.dart';
 import 'package:lyrics/OfflineService/offline_notification_service.dart';
 
@@ -619,6 +620,21 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       print('Error getting artist song count: $e');
+    }
+    return 0;
+  }
+
+  Future<int> _getWorshipArtistTotalSongCount(int? artistId) async {
+    if (artistId == null) return 0;
+
+    try {
+      final result = await _worshipEntityService.getWorshipArtistSongs(artistId);
+      if (result['success']) {
+        final songs = result['songs'] as List<dynamic>? ?? [];
+        return songs.length;
+      }
+    } catch (e) {
+      print('Error getting worship artist song count: $e');
     }
     return 0;
   }
@@ -1816,7 +1832,16 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 child: GestureDetector(
                                   onTap: () {
-                                    _navigateToArtistAlbums(artists[index]);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => AllSongs(
+                                              artist: artists[index],
+                                              isWorship: false,
+                                            ),
+                                      ),
+                                    );
                                   },
                                   child: _buildArtistCard(artists[index]),
                                 ),
@@ -1982,10 +2007,11 @@ class _HomePageState extends State<HomePage> {
                                       index < worshipArtists.length - 1 ? 15 : 0,
                                 ),
                                 child: GestureDetector(
-                                  onTap:
-                                      () => _navigateToWorshipArtistDetails(
-                                        worshipArtists[index],
-                                      ),
+                                  onTap: () {
+                                    _navigateToWorshipArtistDetails(
+                                      worshipArtists[index],
+                                    );
+                                  },
                                   child: _buildWorshipArtistCard(
                                     worshipArtists[index],
                                   ),
@@ -2175,7 +2201,11 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => AllSongs(artistId: artist.id, artistName: artist.name),
+            (context) => ArtistAlbumSongDetails(
+              artistId: artist.id!,
+              artistName: artist.name,
+              artistImage: artist.image,
+            ),
       ),
     );
   }
@@ -2193,23 +2223,19 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => AllSongs(
-              worshipArtist: artist,
-              isWorship: true,
+            (context) => WorshipArtistAlbumSongDetails(
+              worshipTeamId: artist.id!,
               artistName: artist.name,
-              backgroundImage: artist.image ?? '',
+              artistImage: artist.image,
             ),
       ),
     );
   }
 
   Widget _buildWorshipArtistCard(WorshipArtistModel artist) {
-    return Container(
+    return SizedBox(
       width: 120,
       height: 150,
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -2251,18 +2277,17 @@ class _HomePageState extends State<HomePage> {
               textAlign: TextAlign.center,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
-              '${artist.songCount ?? 0} Songs',
-              style: const TextStyle(color: Colors.white70, fontSize: 15),
-              textAlign: TextAlign.center,
-            ),
+          Text(
+            '${artist.songCount ?? 0} Songs',
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
+
 
 
 

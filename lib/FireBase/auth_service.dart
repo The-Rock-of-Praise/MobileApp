@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:lyrics/OfflineService/database_helper.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 class FireBaseAuthServices {
   final UserService _userService = UserService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -57,8 +59,6 @@ class FireBaseAuthServices {
 
       print('✅ Google User obtained: ${googleUser.email}');
 
-      print('✅ Google User obtained: ${googleUser.email}');
-
       final response = await _userService.client.post(
         Uri.parse('https://therockofpraise.org/api/auth/social-auth'),
         headers: {'Content-Type': 'application/json'},
@@ -74,12 +74,24 @@ class FireBaseAuthServices {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('✨ Social auth successful');
-        await UserService.saveuserID(responseData['user']['id']);
+        final userId = responseData['user']['id'] as int;
+        await UserService.saveuserID(userId);
         await UserService.saveIsPremium(responseData['user']['isPremium']);
         
         if (googleUser.photoUrl != null) {
           await saveIsPremium(googleUser.photoUrl!);
         }
+
+        // 🔑 FIX: Cache user in local SQLite immediately so offline fallbacks work
+        // for brand-new accounts on their very first profile save.
+        await _cacheUserLocally(
+          id: userId,
+          fullname: responseData['user']['fullname'] ?? googleUser.displayName ?? 'Google User',
+          email: responseData['user']['email'] ?? googleUser.email,
+          phonenumber: responseData['user']['phonenumber'] ?? 'G-${googleUser.id.substring(0, 15)}',
+          isPremium: (responseData['user']['isPremium'] ?? 0) == 1 ? 1 : 0,
+        );
+
         return true;
       }
 
@@ -88,7 +100,7 @@ class FireBaseAuthServices {
 
     } catch (e) {
       print('💥 Error in _handleGoogleAuth: $e');
-      rethrow; // Rethrow to let the UI catch and display the error
+      rethrow;
     }
   }
 
@@ -100,14 +112,11 @@ class FireBaseAuthServices {
     return await _handleAppleAuth();
   }
 
-    Future<bool> _handleAppleAuth() async {
+  Future<bool> _handleAppleAuth() async {
     try {
       print('🌐 Starting Unified Apple Auth Process...');
       
-      // Apple Provider එක සූදානම් කිරීම
       final appleProvider = AppleAuthProvider();
-      
-      // Apple Login pop-up එක පෙන්වීම සහ User දත්ත ලබා ගැනීම
       final UserCredential userCredential = await _firebaseAuth.signInWithProvider(appleProvider);
       final User? appleUser = userCredential.user;
 
@@ -121,7 +130,6 @@ class FireBaseAuthServices {
       String email = appleUser.email ?? '';
       String displayName = appleUser.displayName ?? '';
 
-      // Fallback for missing displayName
       if (displayName.trim().isEmpty) {
         if (email.isNotEmpty && email.contains('@')) {
           displayName = email.split('@').first;
@@ -130,7 +138,6 @@ class FireBaseAuthServices {
         }
       }
 
-      // Fallback for missing email (to satisfy backend validation)
       if (email.trim().isEmpty) {
         email = '${appleUser.uid}@apple.dummy';
       }
@@ -150,12 +157,24 @@ class FireBaseAuthServices {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('✨ Social auth successful');
-        await UserService.saveuserID(responseData['user']['id']);
+        final userId = responseData['user']['id'] as int;
+        await UserService.saveuserID(userId);
         await UserService.saveIsPremium(responseData['user']['isPremium']);
         
         if (appleUser.photoURL != null) {
           await saveIsPremium(appleUser.photoURL!);
         }
+
+        // 🔑 FIX: Cache user in local SQLite immediately so offline fallbacks work
+        // for brand-new accounts on their very first profile save.
+        await _cacheUserLocally(
+          id: userId,
+          fullname: responseData['user']['fullname'] ?? displayName,
+          email: responseData['user']['email'] ?? email,
+          phonenumber: responseData['user']['phonenumber'] ?? 'A-${appleUser.uid.substring(0, 15)}',
+          isPremium: (responseData['user']['isPremium'] ?? 0) == 1 ? 1 : 0,
+        );
+
         return true;
       }
 
@@ -164,7 +183,40 @@ class FireBaseAuthServices {
 
     } catch (e) {
       print('💥 Error in _handleAppleAuth: $e');
-      rethrow; // Rethrow to let the UI catch and display the error
+      rethrow;
+    }
+  }
+
+  /// Caches the authenticated user into the local SQLite database.
+  /// This ensures the offline-first fallback path always finds the user.
+  Future<void> _cacheUserLocally({
+    required int id,
+    required String fullname,
+    required String email,
+    required String phonenumber,
+    required int isPremium,
+  }) async {
+    try {
+      final db = await DatabaseHelper().database;
+      await db.insert(
+        'users',
+        {
+          'id': id,
+          'fullname': fullname,
+          'email': email,
+          'phonenumber': phonenumber,
+          'password': 'social_auth_user',
+          'isPremium': isPremium,
+          'created_at': DateTime.now().toIso8601String(),
+          'updated_at': DateTime.now().toIso8601String(),
+          'synced': 1,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print('✅ User $id cached in local SQLite DB after social sign-in.');
+    } catch (e) {
+      // Log but do NOT rethrow — a local cache failure must not block login.
+      print('⚠️ Warning: Could not cache user locally after social sign-in: $e');
     }
   }
 
