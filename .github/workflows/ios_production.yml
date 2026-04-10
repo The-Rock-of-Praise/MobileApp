@@ -6,6 +6,11 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    env:
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -30,13 +35,14 @@ jobs:
       - name: Build IPA with Fastlane
         run: |
           cd ios
-          fastlane release
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
+          fastlane build
 
-      - name: Upload IPA
+      - name: Deploy to TestFlight
+        run: |
+          cd ios
+          fastlane deploy
+
+      - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: production-ipa
