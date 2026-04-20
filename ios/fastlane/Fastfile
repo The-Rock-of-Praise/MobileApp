@@ -10,16 +10,22 @@ platform :ios do
       is_key_content_base64: false
     )
 
-    # මෙන්න මෙතන තමයි වෙනස් කළේ:
-    # අලුතින් හදන්න එපා, තියෙන එක ගන්න කියලා අපි කියනවා
-    get_certificates(api_key: api_key, generate_apple_certs: false)
-    get_provisioning_profile(api_key: api_key, type: "app-store")
-
+    # අලුතින් Certificates හදන්න එපා, අපි දෙන එක ගන්න කියලා කියනවා
+    # අපේ GitHub Workflow එකෙන් දැනටමත් මේවා Mac එකට දාලා තියෙන්නේ
+    
     # Build the IPA
     build_app(
       scheme: "Runner",
       workspace: "Runner.xcworkspace",
       export_method: "app-store",
+      # --- මෙන්න මේ ටික තමයි වැදගත්ම ---
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "com.therockofpraise.lyrics" => "Rock Of Praise Christian Songs" # <--- Apple Developer Portal එකේ තියෙන නම මෙතනට දාන්න
+        }
+      },
+      # ---------------------------------
       output_directory: "../build/ios/ipa",
       output_name: "TheRockOfPraise.ipa",
       clean: true,
@@ -36,7 +42,6 @@ platform :ios do
       is_key_content_base64: false
     )
 
-    # Upload the IPA to TestFlight
     upload_to_testflight(
       api_key: api_key,
       ipa: "../build/ios/ipa/TheRockOfPraise.ipa",
