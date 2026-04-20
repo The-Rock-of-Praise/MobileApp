@@ -10,12 +10,12 @@ platform :ios do
       is_key_content_base64: false
     )
 
-    # Automatically fetch/create distribution certificates and provisioning profiles
-    get_certificates(api_key: api_key)
+    # මෙන්න මෙතන තමයි වෙනස් කළේ:
+    # අලුතින් හදන්න එපා, තියෙන එක ගන්න කියලා අපි කියනවා
+    get_certificates(api_key: api_key, generate_apple_certs: false)
     get_provisioning_profile(api_key: api_key, type: "app-store")
 
     # Build the IPA
-    # Note: Fastlane gym will handle the build and signing
     build_app(
       scheme: "Runner",
       workspace: "Runner.xcworkspace",

@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "422917812627-iit8rvo93t1b2p2lc0boqk2ek99nabl9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.therockofpraise.lyrics",
+            "certificate_hash": "d98a907986b8b557c2605719567999b46e7ed573"
+          }
+        },
+        {
           "client_id": "422917812627-vutdu1c7hvh9hn6mlf0a75piktpfjb12.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -37,6 +45,13 @@
             {
               "client_id": "422917812627-6bsp7eu8rs2dk7vg2eurufav0u88if7p.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "422917812627-q9ib1n8ikb7da47br89mv8o1guflpa28.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.therockofpraise.lyrics"
+              }
             }
           ]
         }
