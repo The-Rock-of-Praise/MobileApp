@@ -293,12 +293,16 @@ class _SignupPageState extends State<SignupPage> {
                                         onInputChanged: (PhoneNumber number) {
                                           fullPhoneNumber = number.phoneNumber!;
                                         },
-                                        selectorConfig: const SelectorConfig(
-                                          selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                                          showFlags: true,
-                                          setSelectorButtonAsPrefixIcon: true,
-                                          leadingPadding: 10,
-                                        ),
+                                          selectorConfig: const SelectorConfig(
+                                            selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                                            showFlags: true,
+                                            setSelectorButtonAsPrefixIcon: true,
+                                            leadingPadding: 10,
+                                          ),
+                                          searchBoxDecoration: InputDecoration(
+                                            hintText: 'Search by country/region',
+                                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                                          ),
                                         selectorTextStyle: const TextStyle(color: Colors.white),
                                         initialValue: number,
                                         textFieldController: _phoneController,

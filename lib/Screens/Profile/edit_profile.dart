@@ -334,7 +334,7 @@ class _EditProfileState extends State<EditProfile> {
                           _buildDivider(),
                           _buildModernField(Icons.phone_outlined, "Phone", _phoneController),
                           _buildDivider(),
-                          _buildModernField(Icons.public, "Country", _countryController),
+                          _buildModernField(Icons.public, "Country/Region", _countryController),
                           _buildDivider(),
                           _buildModernClickableField(Icons.cake_outlined, "Date of Birth", _dobController, _selectDate, readOnly: true),
                           _buildDivider(),
