@@ -28,8 +28,7 @@ platform :ios do
       },
       output_directory: "../build/ios/ipa",
       output_name: "TheRockOfPraise.ipa",
-      clean: true,
-      api_key: api_key
+      clean: true
     )
   end
 
