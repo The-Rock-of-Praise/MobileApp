@@ -31,18 +31,24 @@ jobs:
 
       - name: Install Apple Certificates and Profiles
         run: |
+          # Create and unlock keychain
           security create-keychain -p "" build.keychain
           security list-keychains -s build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
           security set-keychain-settings -lut 21600 build.keychain
 
+          # Import certificate
           echo "${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}" | base64 --decode > certificate.p12
           security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -A
           security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
 
+          # Install Provisioning Profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+          echo "${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/Rock_Of_Praise_Christian_Songs.mobileprovision
+          
+          # Verify installation
+          ls ~/Library/MobileDevice/Provisioning\ Profiles/ | grep mobileprovision
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1

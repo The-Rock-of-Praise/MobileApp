@@ -17,15 +17,15 @@ platform :ios do
     build_app(
       scheme: "Runner",
       workspace: "Runner.xcworkspace",
+      configuration: "Release",
+      codesigning_identity: "Apple Distribution",
       export_method: "app-store",
-      # --- මෙන්න මේ ටික තමයි වැදගත්ම ---
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
-          "com.therockofpraise.lyrics" => "Rock Of Praise Christian Songs" # <--- Apple Developer Portal එකේ තියෙන නම මෙතනට දාන්න
+          "com.therockofpraise.lyrics" => "Rock Of Praise Christian Songs"
         }
       },
-      # ---------------------------------
       output_directory: "../build/ios/ipa",
       output_name: "TheRockOfPraise.ipa",
       clean: true,
