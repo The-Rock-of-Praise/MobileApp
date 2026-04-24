@@ -58,10 +58,11 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
-      - name: Build IPA with Fastlane
+      - name: Build IPA with Flutter
         run: |
-          cd ios
-          fastlane build
+          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
+          # Rename the output IPA so Fastlane can find it
+          mv build/ios/ipa/*.ipa build/ios/ipa/TheRockOfPraise.ipa
 
       - name: Deploy to TestFlight
         run: |
