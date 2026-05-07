@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-16
     env:
       APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -24,15 +24,10 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Select latest Xcode
+      - name: List Available Xcode Versions
         run: |
-          # Try to find and select Xcode 26 or the latest available
-          if [ -d "/Applications/Xcode_26.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_26.app
-          else
-            sudo xcode-select -s /Applications/Xcode.app
-          fi
-          xcodebuild -version
+          ls -d /Applications/Xcode*
+          xcode-select -p
 
       - name: Install dependencies
         run: |
