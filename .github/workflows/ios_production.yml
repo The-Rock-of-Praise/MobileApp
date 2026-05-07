@@ -24,11 +24,14 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # අලුත් පියවර: මෙතැනදී Xcode 16.1 සහ අවශ්‍ය SDKs ඔක්කොම ලෑස්ති කරනවා
       - name: Set up Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.1'
+
+      # මේ පියවර මගින් අඩුවෙලා තියෙන iOS 18.x Platform එක ඉන්ස්ටෝල් කරනවා
+      - name: Install iOS Platform
+        run: sudo xcodebuild -downloadPlatform iOS
 
       - name: List Available Xcode Versions
         run: |
@@ -71,6 +74,7 @@ jobs:
 
       - name: Build IPA with Flutter
         run: |
+          # SDK එක iphoneos කියලා specify කිරීමෙන් අර error එක මගහරවා ගන්න පුළුවන්
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
           # Rename the output IPA so Fastlane can find it
           mv build/ios/ipa/*.ipa build/ios/ipa/TheRockOfPraise.ipa
