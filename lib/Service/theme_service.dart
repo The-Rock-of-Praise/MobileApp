@@ -14,7 +14,7 @@ class ThemeService {
   // Get saved theme
   static Future<String> getTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_themeKey) ?? 'Dark';
+    return prefs.getString(_themeKey) ?? 'Image';
   }
 
   // Save automatic theme setting

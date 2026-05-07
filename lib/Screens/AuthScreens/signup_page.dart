@@ -118,12 +118,6 @@ class _SignupPageState extends State<SignupPage> {
       return;
     }
 
-    if (fullPhoneNumber.isEmpty || fullPhoneNumber.length < 5) {
-      setState(() {
-        errorMessage = 'Please enter a valid phone number';
-      });
-      return;
-    }
 
     if (_passwordController.text != _confirmPasswordController.text) {
       setState(() {
@@ -148,7 +142,7 @@ class _SignupPageState extends State<SignupPage> {
       final newUser = UserModel(
         fullname: _nameController.text,
         email: _emailController.text,
-        phonenumber: fullPhoneNumber,
+        phonenumber: '',
         password: _passwordController.text,
       );
 
@@ -276,52 +270,7 @@ class _SignupPageState extends State<SignupPage> {
                               ),
                               const SizedBox(height: 12),
                               
-                              // Phone Number Input
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 15),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(color: Colors.white.withOpacity(0.2)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.phone_outlined, color: Colors.white.withOpacity(0.6), size: 20),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      child: InternationalPhoneNumberInput(
-                                        onInputChanged: (PhoneNumber number) {
-                                          fullPhoneNumber = number.phoneNumber!;
-                                        },
-                                          selectorConfig: const SelectorConfig(
-                                            selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                                            showFlags: true,
-                                            setSelectorButtonAsPrefixIcon: true,
-                                            leadingPadding: 10,
-                                          ),
-                                          searchBoxDecoration: InputDecoration(
-                                            hintText: 'Search by country/region',
-                                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                                          ),
-                                        selectorTextStyle: const TextStyle(color: Colors.white),
-                                        initialValue: number,
-                                        textFieldController: _phoneController,
-                                        formatInput: true,
-                                        cursorColor: Colors.white,
-                                        inputDecoration: InputDecoration(
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
-                                          border: InputBorder.none,
-                                          hintText: 'Phone Number',
-                                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16),
-                                          isDense: true,
-                                        ),
-                                        textStyle: const TextStyle(color: Colors.white, fontSize: 16),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 12),
+
                               AuthTextfeildContainer(
                                 controller: _emailController,
                                 hintText: 'Email',

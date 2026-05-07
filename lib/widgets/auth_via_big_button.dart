@@ -19,7 +19,7 @@ class AuthViaBigButton extends StatelessWidget {
     return GestureDetector(
       onTap: isLoading ? null : ontap,
       child: Opacity(
-        opacity: 0.50,
+        opacity: 1.0,
         child: Container(
           width: MediaQuery.of(context).size.width * 0.85,
           height: 62,

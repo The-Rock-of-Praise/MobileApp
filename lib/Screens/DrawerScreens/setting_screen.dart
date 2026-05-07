@@ -59,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Auto-save appropriate lyrics color based on theme
     if (theme == 'Light') {
       await _saveLyricsColor(Colors.black);
-    } else if (theme == 'Dark') {
+    } else if (theme == 'Dark' || theme == 'Image') {
       await _saveLyricsColor(Colors.white);
     }
 
@@ -276,13 +276,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       // Light theme phone
                       _buildPhoneMockup(
-                        isLight: true,
+                        theme: 'Light',
                         isSelected: selectedTheme == 'Light',
                       ),
                       // Dark theme phone
                       _buildPhoneMockup(
-                        isLight: false,
+                        theme: 'Dark',
                         isSelected: selectedTheme == 'Dark',
+                      ),
+                      // Image theme phone
+                      _buildPhoneMockup(
+                        theme: 'Image',
+                        isSelected: selectedTheme == 'Image',
                       ),
                     ],
                   ),
@@ -298,7 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'Light',
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -325,13 +330,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'Dark',
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           SizedBox(height: 8),
                           Radio<String>(
                             value: 'Dark',
+                            groupValue: isAutomaticTheme ? null : selectedTheme,
+                            onChanged:
+                                isAutomaticTheme
+                                    ? null
+                                    : (value) {
+                                      if (value != null) {
+                                        _saveTheme(value);
+                                      }
+                                    },
+                            activeColor: Colors.blue,
+                          ),
+                        ],
+                      ),
+                      // Image option
+                      Column(
+                        children: [
+                          Text(
+                            'Image',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Radio<String>(
+                            value: 'Image',
                             groupValue: isAutomaticTheme ? null : selectedTheme,
                             onChanged:
                                 isAutomaticTheme
@@ -402,61 +434,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   // Font Size Selection
-                  InkWell(
-                    onTap: _showFontSizeDialog,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Font Size',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
+                  // Font Size Slider
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Font Size',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            '${lyricsFontSize.toInt()} px',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.text_fields, size: 16, color: Colors.black87),
+                          Expanded(
+                            child: SliderTheme(
+                              data: SliderThemeData(
+                                trackHeight: 2.0,
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.0),
+                                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14.0),
+                                activeTrackColor: Colors.black87,
+                                inactiveTrackColor: Colors.black26,
+                                thumbColor: Colors.black87,
+                                overlayColor: Colors.black87.withOpacity(0.1),
+                              ),
+                              child: Slider(
+                                value: lyricsFontSize.clamp(12.0, 40.0),
+                                min: 12.0,
+                                max: 40.0,
+                                onChanged: (value) {
+                                  setState(() {
+                                    lyricsFontSize = value;
+                                  });
+                                },
+                                onChangeEnd: (value) {
+                                  _saveFontSize(value);
+                                },
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              FontSettingsService.getFontSizeLabel(
-                                lyricsFontSize,
-                              ),
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            // Preview text
-                            Text(
-                              'Aa',
-                              style: TextStyle(
-                                color:
-                                    selectedLyricsColor.computeLuminance() > 0.5
-                                        ? Colors.black
-                                        : selectedLyricsColor,
-                                fontSize: lyricsFontSize,
-                                fontWeight:
-                                    isBoldText
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.grey.shade600,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                          Icon(Icons.text_fields, size: 24, color: Colors.black87),
+                        ],
+                      ),
+                    ],
                   ),
                   Divider(
                     color: Colors.grey.shade400,
@@ -670,7 +706,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildPhoneMockup({required bool isLight, required bool isSelected}) {
+  Widget _buildPhoneMockup({required String theme, required bool isSelected}) {
+    final isLight = theme == 'Light';
+    final isImage = theme == 'Image';
+
     return Container(
       width: 60,
       height: 100,
@@ -684,6 +723,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           color: isLight ? Colors.white : Colors.black,
           borderRadius: BorderRadius.circular(8),
+          gradient: isImage ? LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.purple.shade900, Colors.black],
+          ) : null,
         ),
         child: Column(
           children: [
@@ -701,7 +745,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Container(
                 margin: EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                  color: isLight ? Colors.grey.shade200 : Colors.grey.shade800,
+                  color: isLight ? Colors.grey.shade200 : (isImage ? Colors.transparent : Colors.grey.shade800),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),

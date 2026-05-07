@@ -8,6 +8,7 @@ class CachedImageWidget extends StatefulWidget {
   final double width;
   final double height;
   final BoxFit fit;
+  final Alignment alignment;
   final Widget? placeholder;
   final Widget? errorWidget;
   final BorderRadius? borderRadius;
@@ -18,6 +19,7 @@ class CachedImageWidget extends StatefulWidget {
     required this.width,
     required this.height,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.center,
     this.placeholder,
     this.errorWidget,
     this.borderRadius,
@@ -124,6 +126,7 @@ class _CachedImageWidgetState extends State<CachedImageWidget> {
         width: widget.width,
         height: widget.height,
         fit: widget.fit,
+        alignment: widget.alignment,
         errorBuilder: (context, error, stackTrace) {
           return widget.errorWidget ?? _buildDefaultErrorWidget();
         },
@@ -135,6 +138,7 @@ class _CachedImageWidgetState extends State<CachedImageWidget> {
         width: widget.width,
         height: widget.height,
         fit: widget.fit,
+        alignment: widget.alignment,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
           return widget.placeholder ?? _buildDefaultPlaceholder();

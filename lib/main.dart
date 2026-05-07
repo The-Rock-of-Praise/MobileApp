@@ -10,6 +10,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:get/get.dart';
 import 'package:lyrics/Controllers/profile_controller.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:lyrics/Service/push_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +36,12 @@ void main() async {
 
     await Firebase.initializeApp();
     await initializeDateFormatting();
+
+    // Set up background messaging handler
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+    // Initialize Push Notifications
+    await PushNotificationService().initialize();
 
     // 💎 SESSION VALIDATION: Check Pro status & Due Date on Launch
     final String userId = await UserService.getUserID();

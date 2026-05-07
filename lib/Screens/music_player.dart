@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lyrics/OfflineService/offline_groupe_service.dart';
 import 'package:lyrics/OfflineService/offline_user_service.dart';
@@ -7,8 +8,10 @@ import 'package:lyrics/Service/color_service.dart';
 import 'package:lyrics/Service/lyrics_service.dart';
 import 'package:lyrics/Service/setlist_service.dart';
 import 'package:lyrics/Service/setting_service.dart';
+import 'package:lyrics/Service/theme_service.dart';
 import 'package:lyrics/Service/user_service.dart';
 import 'package:lyrics/widgets/cached_image_widget.dart';
+import 'package:lyrics/Screens/DrawerScreens/premium_screen.dart';
 
 // Import offline services
 import 'package:lyrics/OfflineService/offline_song_service.dart';
@@ -72,6 +75,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
   double baseFontSize = 18.0;
   bool isBoldText = false;
   Color selectedLyricsColor = Colors.white;
+  String selectedTheme = 'Image';
 
   bool isPremium = false;
 
@@ -178,9 +182,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
   Future<void> _reloadColorSettings() async {
     try {
       final color = await ColorService.getColor();
+      final theme = await ThemeService.getTheme();
       if (mounted) {
         setState(() {
           selectedLyricsColor = color;
+          selectedTheme = theme;
         });
       }
       print('Color settings reloaded: $color');
@@ -801,9 +807,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
                   Text(
                     lyrics,
                     style: TextStyle(
-                      color: selectedLyricsColor.withOpacity(
-                        0.95,
-                      ), // Use current color
+                      color: (selectedTheme == 'Light' && (selectedLyricsColor == Colors.white || selectedLyricsColor.value == 0xFFFFFFFF)) 
+                          ? Colors.black87 
+                          : (selectedTheme == 'Dark' && (selectedLyricsColor == Colors.black || selectedLyricsColor.value == 0xFF000000))
+                              ? Colors.white 
+                              : selectedLyricsColor.withOpacity(0.95),
                       fontSize: FontSettingsService.getAdjustedFontSize(
                         baseFontSize, // Use current font size
                         languageCode,
@@ -815,7 +823,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                               : FontWeight.w400, // Use current bold setting
                       letterSpacing: 0.2,
                     ),
-                    textAlign: TextAlign.justify,
+                    textAlign: TextAlign.left,
                   ),
                 ],
               );
@@ -856,7 +864,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
       return Text(
         lyrics,
         style: TextStyle(
-          color: selectedLyricsColor.withOpacity(0.95), // Use current color
+          color: (selectedTheme == 'Light' && (selectedLyricsColor == Colors.white || selectedLyricsColor.value == 0xFFFFFFFF)) 
+              ? Colors.black87 
+              : (selectedTheme == 'Dark' && (selectedLyricsColor == Colors.black || selectedLyricsColor.value == 0xFF000000))
+                  ? Colors.white 
+                  : selectedLyricsColor.withOpacity(0.95),
           fontSize: FontSettingsService.getAdjustedFontSize(
             baseFontSize, // Use current font size
             languageCode,
@@ -868,7 +880,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                   : FontWeight.w400, // Use current bold setting
           letterSpacing: 0.2,
         ),
-        textAlign: TextAlign.justify,
+        textAlign: TextAlign.left,
       );
     }
   }
@@ -1093,213 +1105,18 @@ class _MusicPlayerState extends State<MusicPlayer> {
                                 ),
                         onPressed: isCheckingFavorite ? null : _toggleFavorite,
                       ),
-
+                      const SizedBox(width: 8),
+                      // Toggle lyrics/info button
                       IconButton(
                         icon: Icon(
-                          Icons.more_vert_rounded,
+                          showLyrics ? Icons.info_outline : Icons.lyrics,
                           color: Colors.white,
                           size: 24,
                         ),
                         onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  ListTile(
-                                    leading: Icon(Icons.settings),
-                                    title: Text('Settings'),
-                                    onTap: () async {
-                                      Navigator.pop(
-                                        context,
-                                      ); // Close the bottom sheet first
-
-                                      // Show loading indicator immediately
-                                      // ScaffoldMessenger.of(
-                                      //   context,
-                                      // ).showSnackBar(
-                                      //   SnackBar(
-                                      //     content: Row(
-                                      //       children: [
-                                      //         SizedBox(
-                                      //           width: 16,
-                                      //           height: 16,
-                                      //           child: CircularProgressIndicator(
-                                      //             strokeWidth: 2,
-                                      //             valueColor:
-                                      //                 AlwaysStoppedAnimation<
-                                      //                   Color
-                                      //                 >(Colors.white),
-                                      //           ),
-                                      //         ),
-                                      //         SizedBox(width: 12),
-                                      //         Text('Opening settings...'),
-                                      //       ],
-                                      //     ),
-                                      //     duration: Duration(seconds: 1),
-                                      //     backgroundColor: Colors.blue,
-                                      //   ),
-                                      // );
-
-                                      // try {
-                                      // Navigate to settings and wait for result
-                                      final result = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  const SettingsScreen(),
-                                        ),
-                                      );
-
-                                      // Check if settings were changed
-                                      if (result != null && result == true) {
-                                        // Show updating indicator
-                                        // ScaffoldMessenger.of(
-                                        //   context,
-                                        // ).showSnackBar(
-                                        //   SnackBar(
-                                        //     content: Row(
-                                        //       children: [
-                                        //         SizedBox(
-                                        //           width: 16,
-                                        //           height: 16,
-                                        //           child: CircularProgressIndicator(
-                                        //             strokeWidth: 2,
-                                        //             valueColor:
-                                        //                 AlwaysStoppedAnimation<
-                                        //                   Color
-                                        //                 >(Colors.white),
-                                        //           ),
-                                        //         ),
-                                        //         SizedBox(width: 12),
-                                        //         Text('Applying changes...'),
-                                        //       ],
-                                        //     ),
-                                        //     duration: Duration(seconds: 3),
-                                        //     backgroundColor: Colors.orange,
-                                        //   ),
-                                        // );
-
-                                        // Reload all settings and refresh UI
-                                        await _reloadAllSettings();
-
-                                        //     // Show success message
-                                        //     if (mounted) {
-                                        //       ScaffoldMessenger.of(
-                                        //         context,
-                                        //       ).showSnackBar(
-                                        //         SnackBar(
-                                        //           content: Row(
-                                        //             children: [
-                                        //               Icon(
-                                        //                 Icons.check_circle,
-                                        //                 color: Colors.white,
-                                        //                 size: 16,
-                                        //               ),
-                                        //               SizedBox(width: 8),
-                                        //               Text(
-                                        //                 'Settings updated successfully!',
-                                        //               ),
-                                        //             ],
-                                        //           ),
-                                        //           duration: Duration(seconds: 2),
-                                        //           backgroundColor: Colors.green,
-                                        //         ),
-                                        //       );
-                                        //     }
-                                        //   }
-                                        // } catch (e) {
-                                        //   print(
-                                        //     'Error handling settings return: $e',
-                                        //   );
-                                        //   if (mounted) {
-                                        //     ScaffoldMessenger.of(
-                                        //       context,
-                                        //     ).showSnackBar(
-                                        //       SnackBar(
-                                        //         content: Text(
-                                        //           'Error updating settings: $e',
-                                        //         ),
-                                        //         backgroundColor: Colors.red,
-                                        //         duration: Duration(seconds: 3),
-                                        //       ),
-                                        //     );
-                                        //   }
-                                        //   }
-                                      }
-                                    },
-                                  ),
-                                  ListTile(
-                                    leading: Icon(Icons.share),
-                                    title: Text('Share'),
-                                    trailing:
-                                        isPremium == false
-                                            ? Icon(
-                                              Icons.lock,
-                                              color: Colors.grey,
-                                              size: 20,
-                                            )
-                                            : null,
-                                    onTap:
-                                        isPremium
-                                            ? () {
-                                              Navigator.pop(context);
-                                              // Add your share functionality here
-                                            }
-                                            : null,
-                                  ),
-                                  ListTile(
-                                    leading: Icon(Icons.playlist_add),
-                                    title: Text('My Set List'),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (!_isOnline)
-                                          Icon(
-                                            Icons.cloud_off,
-                                            color: Colors.orange,
-                                            size: 16,
-                                          ),
-                                        if (!_isOnline)
-                                          const SizedBox(width: 4),
-                                        if (isPremium == false)
-                                          Icon(
-                                            Icons.lock,
-                                            color: Colors.grey,
-                                            size: 20,
-                                          ),
-                                      ],
-                                    ),
-                                    onTap:
-                                        isPremium == false
-                                            ? null
-                                            : () {
-                                              Navigator.pop(context);
-                                              _addToSetList();
-                                            },
-                                  ),
-                                  ListTile(
-                                    leading: Icon(Icons.lyrics),
-                                    trailing:
-                                        isPremium == false
-                                            ? Icon(
-                                              Icons.lock,
-                                              color: Colors.grey,
-                                              size: 20,
-                                            )
-                                            : null,
-                                    title: Text('How to Read Lyrics'),
-                                    onTap:
-                                        isPremium == false
-                                            ? null
-                                            : _changeLyricsFormat,
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          setState(() {
+                            showLyrics = !showLyrics;
+                          });
                         },
                       ),
                     ],
@@ -1313,70 +1130,79 @@ class _MusicPlayerState extends State<MusicPlayer> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Background image
-            Positioned.fill(
-              child:
-                  widget.backgroundImage != null
-                      ? widget.backgroundImage!.startsWith('http') ||
-                              widget.backgroundImage!.startsWith('https')
-                          ? CachedImageWidget(
-                            imageUrl: widget.backgroundImage ?? '',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.fitHeight,
-                            placeholder: Container(
-                              color: Colors.grey[800],
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white54,
+            // Background based on theme
+            if (selectedTheme == 'Image') ...[
+              // Background image
+              Positioned.fill(
+                child:
+                    widget.backgroundImage != null
+                        ? widget.backgroundImage!.startsWith('http') ||
+                                widget.backgroundImage!.startsWith('https')
+                            ? CachedImageWidget(
+                              imageUrl: widget.backgroundImage ?? '',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.fitHeight,
+                              placeholder: Container(
+                                color: Colors.grey[800],
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white54,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            errorWidget: Container(
-                              color: Colors.grey[800],
-                              child: const Icon(
-                                Icons.music_note,
-                                color: Colors.white54,
-                                size: 80,
-                              ),
-                            ),
-                          )
-                          : Image.asset(
-                            widget.backgroundImage ?? '',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.fitHeight,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
+                              errorWidget: Container(
                                 color: Colors.grey[800],
                                 child: const Icon(
                                   Icons.music_note,
                                   color: Colors.white54,
                                   size: 80,
                                 ),
-                              );
-                            },
-                          )
-                      : Image.asset(''),
-            ),
+                              ),
+                            )
+                            : Image.asset(
+                              widget.backgroundImage ?? '',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.fitHeight,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[800],
+                                  child: const Icon(
+                                    Icons.music_note,
+                                    color: Colors.white54,
+                                    size: 80,
+                                  ),
+                                );
+                              },
+                            )
+                        : Image.asset(''),
+              ),
 
-            // Gradient overlay
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      const Color(0xFF173857).withOpacity(0.9),
-                      const Color(0xFF000000).withOpacity(0.9),
-                    ],
+              // Gradient overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF173857).withOpacity(0.9),
+                        const Color(0xFF000000).withOpacity(0.9),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+            ] else ...[
+              Positioned.fill(
+                child: Container(
+                  color: selectedTheme == 'Light' ? Colors.white : Colors.black,
+                ),
+              ),
+            ],
 
             // Content
             Column(
@@ -1387,9 +1213,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back_ios,
-                          color: Colors.white,
+                          color: selectedTheme == 'Light' ? Colors.black : Colors.white,
                           size: 20,
                         ),
                         onPressed: () {
@@ -1397,48 +1223,21 @@ class _MusicPlayerState extends State<MusicPlayer> {
                         },
                       ),
                       const Spacer(),
-                      // Song title with connectivity indicator
+                      // Song title
                       Expanded(
                         flex: 3,
                         child: Column(
                           children: [
                             Text(
                               widget.song,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
+                              style: TextStyle(
+                                color: selectedTheme == 'Light' ? Colors.black : Colors.white,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (_dataSource != null) ...[
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _getSourceColor(
-                                    _dataSource!,
-                                  ).withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: _getSourceColor(_dataSource!),
-                                    width: 0.5,
-                                  ),
-                                ),
-                                child: Text(
-                                  _dataSource!.toUpperCase(),
-                                  style: TextStyle(
-                                    color: _getSourceColor(_dataSource!),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -1446,27 +1245,92 @@ class _MusicPlayerState extends State<MusicPlayer> {
                       // Toggle lyrics/info button
                       IconButton(
                         icon: Icon(
-                          showLyrics ? Icons.info : Icons.lyrics,
-                          color: Colors.white,
-                          size: 20,
+                          Icons.more_vert_rounded,
+                          color: selectedTheme == 'Light' ? Colors.black : Colors.white,
+                          size: 24,
                         ),
                         onPressed: () {
-                          setState(() {
-                            showLyrics = !showLyrics;
-                          });
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  ListTile(
+                                    leading: Icon(Icons.settings),
+                                    title: Text('Settings'),
+                                    onTap: () async {
+                                      Navigator.pop(context); // Close the bottom sheet first
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const SettingsScreen(),
+                                        ),
+                                      );
+                                      if (result != null && result == true) {
+                                        await _reloadAllSettings();
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: Icon(Icons.share),
+                                    title: Text('Share'),
+                                    trailing: isPremium == false
+                                        ? Icon(Icons.lock, color: Colors.grey, size: 20)
+                                        : null,
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      if (isPremium == true) {
+                                        // _shareSong();
+                                      } else {
+                                        _showPremiumDialog(feature: 'sharing songs');
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.playlist_add),
+                                    title: const Text('My Set List'),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (!_isOnline)
+                                          const Icon(Icons.cloud_off, color: Colors.orange, size: 16),
+                                        if (!_isOnline) const SizedBox(width: 4),
+                                        if (isPremium == false)
+                                          const Icon(Icons.lock, color: Colors.grey, size: 20),
+                                      ],
+                                    ),
+                                    onTap: isPremium == false
+                                        ? null
+                                        : () {
+                                            Navigator.pop(context);
+                                            _addToSetList();
+                                          },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.lyrics),
+                                    title: const Text('How to Read Lyrics'),
+                                    trailing: isPremium == false
+                                        ? const Icon(Icons.lock, color: Colors.grey, size: 20)
+                                        : null,
+                                    onTap: isPremium == false ? null : _changeLyricsFormat,
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                       ),
                     ],
                   ),
                 ),
-
-                // Main content area
+                
+                // Main content area - Lyrics or Info
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(24.0),
-                    child:
-                        showLyrics ? _buildLyricsView() : _buildSongInfoView(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: showLyrics ? _buildLyricsView() : _buildSongInfoView(),
                   ),
                 ),
               ],
@@ -1509,14 +1373,32 @@ class _MusicPlayerState extends State<MusicPlayer> {
       );
     }
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Lyrics content based on selected format
-          _buildLyricsContent(),
-        ],
-      ),
+    final isLight = selectedTheme == 'Light';
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final sliderActiveColor = isLight ? Colors.black87 : Colors.white;
+    final sliderInactiveColor = isLight ? Colors.black26 : Colors.white24;
+    final glassColor = isLight ? Colors.white.withOpacity(0.7) : Colors.black.withOpacity(0.4);
+    final borderColor = isLight ? Colors.black12 : Colors.white12;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Lyrics Content
+        Expanded(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Lyrics content based on selected format
+                  _buildLyricsContent(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1701,6 +1583,170 @@ class _MusicPlayerState extends State<MusicPlayer> {
   void dispose() {
     _songService.dispose();
     super.dispose();
+  }
+
+  void _showPremiumDialog({
+    bool isOffline = false,
+    String feature = 'this content',
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.amber.withOpacity(0.3), width: 1),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  isOffline ? Icons.wifi_off : Icons.star,
+                  color: Colors.amber,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  isOffline ? 'Offline Access Restricted' : 'Premium Required',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.amber.withOpacity(0.1),
+                        Colors.orange.withOpacity(0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isOffline) ...[
+                        const Row(
+                          children: [
+                            Icon(Icons.wifi_off, color: Colors.orange, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'You are currently offline',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'To access song lyrics while offline, please upgrade to the Rock of Praise Pro.',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Connect to the internet and upgrade to Pro for full offline access.',
+                          style: TextStyle(color: Colors.white60, fontSize: 14),
+                        ),
+                      ] else ...[
+                        Text(
+                          'Access to $feature requires a Premium subscription.',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Pro Version Includes:',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildPremiumFeatureItem('Full offline access to all lyrics', Icons.menu_book),
+                _buildPremiumFeatureItem('Featured Songs collection', Icons.auto_awesome),
+                _buildPremiumFeatureItem('My Set List to save your favorite songs', Icons.library_music),
+                _buildPremiumFeatureItem('Worship Notes for your personal reflections', Icons.edit_note),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(foregroundColor: Colors.white70),
+              child: Text(isOffline ? 'Use Online Only' : 'Maybe Later'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumScreen()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Upgrade to Pro', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPremiumFeatureItem(String feature, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.amber, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              feature,
+              style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.3),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

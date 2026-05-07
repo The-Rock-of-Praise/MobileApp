@@ -303,45 +303,7 @@ class _HowToReadLyricsState extends State<HowToReadLyrics> {
                           const SizedBox(height: 20),
                         ],
 
-                        // Save button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed:
-                                selectedFormat != null
-                                    ? _saveSelectedFormat
-                                    : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white.withOpacity(0.2),
-                              foregroundColor: Colors.white,
-                              disabledBackgroundColor: Colors.grey.withOpacity(
-                                0.1,
-                              ),
-                              disabledForegroundColor: Colors.grey.withOpacity(
-                                0.5,
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color:
-                                      selectedFormat != null
-                                          ? Colors.white.withOpacity(0.3)
-                                          : Colors.grey.withOpacity(0.2),
-                                  width: 1,
-                                ),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              'Save Preference',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
+
                       ],
                     ),
                   ),
@@ -350,10 +312,49 @@ class _HowToReadLyricsState extends State<HowToReadLyrics> {
     );
   }
 
-  void _selectFormat(String formatValue) {
+  Future<void> _selectFormat(String formatValue) async {
     setState(() {
       selectedFormat = formatValue;
     });
+
+    try {
+      await HowToReadLyricsService.saveLyricsFormat(formatValue);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Saved: ${HowToReadLyricsService.getFormatTitle(formatValue)}',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green.withOpacity(0.9),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(milliseconds: 1500),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to save preference. Please try again.'),
+            backgroundColor: Colors.red.withOpacity(0.9),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   bool _isMultiLanguageFormat(String format) {
@@ -384,83 +385,5 @@ class _HowToReadLyricsState extends State<HowToReadLyrics> {
     }
   }
 
-  Future<void> _saveSelectedFormat() async {
-    if (selectedFormat == null) return;
 
-    try {
-      // Show loading
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder:
-            (context) => const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            ),
-      );
-
-      // Save the preference
-      await HowToReadLyricsService.saveLyricsFormat(selectedFormat!);
-
-      // Close loading dialog
-      Navigator.of(context).pop();
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Preference saved: ${HowToReadLyricsService.getFormatTitle(selectedFormat!)}',
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.green.withOpacity(0.9),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-
-      // Navigate back after a delay
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          Navigator.of(context).pop(selectedFormat);
-        }
-      });
-    } catch (e) {
-      // Close loading dialog if open
-      Navigator.of(context).pop();
-
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white, size: 20),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Failed to save preference. Please try again.',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red.withOpacity(0.9),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-    }
-  }
 }

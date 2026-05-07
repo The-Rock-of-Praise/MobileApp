@@ -57,6 +57,9 @@ class _LanguageScreenState extends State<LanguageScreen> {
           duration: const Duration(seconds: 1),
         ),
       );
+      if (mounted) {
+        Navigator.of(context).pop(language);
+      }
     } catch (e) {
       print('error $e');
       ScaffoldMessenger.of(context).showSnackBar(

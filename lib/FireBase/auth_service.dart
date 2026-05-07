@@ -59,9 +59,22 @@ class FireBaseAuthServices {
 
       print('✅ Google User obtained: ${googleUser.email}');
 
+      // Authenticate with Firebase
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+      
+      final String idToken = await userCredential.user?.getIdToken() ?? '';
+
       final response = await _userService.client.post(
         Uri.parse('https://therockofpraise.org/api/auth/social-auth'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
         body: json.encode({
           'fullname': googleUser.displayName ?? 'Google User',
           'email': googleUser.email,
@@ -126,6 +139,8 @@ class FireBaseAuthServices {
       }
 
       print('✅ Apple User obtained: ${appleUser.email}');
+      
+      final String idToken = await appleUser.getIdToken() ?? '';
 
       String email = appleUser.email ?? '';
       String displayName = appleUser.displayName ?? '';
@@ -144,7 +159,10 @@ class FireBaseAuthServices {
 
       final response = await _userService.client.post(
         Uri.parse('https://therockofpraise.org/api/auth/social-auth'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
         body: json.encode({
           'fullname': displayName,
           'email': email,

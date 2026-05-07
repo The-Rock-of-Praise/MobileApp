@@ -3,6 +3,7 @@
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="com.android.vending.BILLING" />
     <application
         android:label="The Rock Of Praise"
         android:name="${applicationName}"
@@ -32,14 +33,12 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
-            <!-- Deep linking for payment redirection -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="payhere1234878" />
             </intent-filter>
+
+
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

@@ -10,7 +10,7 @@ class AuthViaButtons extends StatelessWidget {
     return Column(
       children: [
         Opacity(
-          opacity: 0.50,
+          opacity: 1.0,
           child: Container(
             width: MediaQuery.of(context).size.width * 0.425,
             height: 54,

@@ -17,7 +17,5 @@ class Const {
   // static const String secret =
   //     'MzM1NDk0NTQzMDMwNzYwNzQ1NTUyNzcxNzU4NDQ5MTUzNzkyMjMxNg==';
 
-  static const String merchant_id = '247804';
-  
   static const bool isProduction = true;
 }

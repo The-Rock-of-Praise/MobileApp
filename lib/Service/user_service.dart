@@ -33,6 +33,20 @@ class UserService {
     }
   }
 
+  static Future<String> getUserEmail() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // We don't have a constant for email key yet, but we can use 'user_email'
+      // or check if it was saved during login.
+      // Looking at the login method, it doesn't save the email.
+      // I'll need to update login to save it or assume it's stored.
+      // Actually, I'll just check if it's there.
+      return prefs.getString('user_email') ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   static Future<void> saveIsPremium(int isPremium) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -157,6 +171,8 @@ class UserService {
         // Save user ID after successful login
         await saveuserID(responseData['user']['id']);
         await saveIsPremium(responseData['user']['isPremium']);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_email', responseData['user']['email'] ?? '');
         print(
           'user login data ${responseData['user']}  ${responseData['user']['isPremium']}',
         );

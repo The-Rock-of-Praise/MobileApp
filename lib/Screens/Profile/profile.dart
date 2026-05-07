@@ -242,7 +242,6 @@ class _ProfileState extends State<Profile> {
               const SizedBox(height: 30),
 
               // Info List (API Details)
-              _buildInfoTile(Icons.phone_iphone, "Phone", _profileDetails?['phonenumber'] ?? 'Not provided'),
               _buildInfoTile(Icons.fingerprint, "User ID", _profileDetails?['id']?.toString() ?? 'N/A'),
               _buildInfoTile(Icons.public, "Country/Region", _getProfileValue('country', 'Not Provided')),
               _buildInfoTile(Icons.cake, "Birthday", _formatDate(_getProfileValue('date_of_birth', 'Not provided'))),

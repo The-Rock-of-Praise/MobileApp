@@ -1335,6 +1335,7 @@ class _HomePageState extends State<HomePage> {
               width: 110,
               height: 110,
               fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
               errorWidget: Container(
                 width: 110,
                 height: 110,
@@ -1521,6 +1522,7 @@ class _HomePageState extends State<HomePage> {
                         width: double.infinity,
                         height: 160,
                         fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
                       )
                     : Container(color: Colors.grey[900]),
               ),
@@ -2252,6 +2254,7 @@ class _HomePageState extends State<HomePage> {
                 width: 110,
                 height: 110,
                 fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
                 errorWidget: Container(
                   width: 110,
                   height: 110,
@@ -2805,7 +2808,7 @@ class _HomePageState extends State<HomePage> {
                   if (!isPremium)
                     _buildDrawerItem(Icons.workspace_premium_outlined, 'Go Premium', onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => PremiumScreen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumScreen()));
                     }),
 
                   Padding(
@@ -2947,6 +2950,7 @@ class _HomePageState extends State<HomePage> {
               width: 110,
               height: 110,
               fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
               errorWidget: Container(
                 width: 110,
                 height: 110,
@@ -3017,6 +3021,7 @@ class _HomePageState extends State<HomePage> {
               width: 110,
               height: 110,
               fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
               errorWidget: Container(
                 width: 110,
                 height: 110,
