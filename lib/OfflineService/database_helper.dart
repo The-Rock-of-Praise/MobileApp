@@ -844,29 +844,35 @@ class DatabaseHelper {
 
   Future<void> updateUserPremiumStatus(int userId, bool isPremium, {String? dueDate, String? paymentStatus}) async {
     final db = await database;
+    final String now = DateTime.now().toIso8601String();
     await db.transaction((txn) async {
       // Update users table
       await txn.update(
         'users',
-        {'isPremium': isPremium ? 1 : 0, 'updated_at': DateTime.now().toIso8601String()},
+        {'isPremium': isPremium ? 1 : 0, 'updated_at': now},
         where: 'id = ?',
         whereArgs: [userId],
       );
 
-      // Update user_profile_details table
-      await txn.update(
-        'user_profile_details',
-        {
-          'account_type': isPremium ? 'Pro' : 'Free',
-          if (dueDate != null) 'due_date': dueDate,
-          if (paymentStatus != null) 'payment_status': paymentStatus,
-          'updated_at': DateTime.now().toIso8601String(),
-        },
-        where: 'user_id = ?',
-        whereArgs: [userId],
-      );
+      // Upsert user_profile_details — INSERT OR REPLACE ensures a row is
+      // always written even when no profile row existed yet (e.g. first payment).
+      await txn.rawInsert('''
+        INSERT INTO user_profile_details (user_id, account_type, due_date, payment_status, updated_at)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(user_id) DO UPDATE SET
+          account_type   = excluded.account_type,
+          due_date       = COALESCE(excluded.due_date, due_date),
+          payment_status = COALESCE(excluded.payment_status, payment_status),
+          updated_at     = excluded.updated_at
+      ''', [
+        userId,
+        isPremium ? 'Pro' : 'Free',
+        dueDate,
+        paymentStatus ?? 'active',
+        now,
+      ]);
     });
-    print('✅ Updated local premium status for user $userId (Pro: $isPremium)');
+    print('✅ Upserted local premium status for user $userId (Pro: $isPremium)');
   }
 
   Future<Map<String, dynamic>?> getUserPremiumStatus(int userId) async {
