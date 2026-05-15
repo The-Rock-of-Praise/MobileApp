@@ -3,6 +3,7 @@ import 'package:lyrics/OfflineService/connectivity_manager.dart';
 import 'package:lyrics/OfflineService/database_helper.dart';
 import 'package:lyrics/OfflineService/offline_groupe_service.dart';
 import 'package:lyrics/Service/artist_service.dart';
+import 'package:lyrics/Service/song_service.dart';
 import 'package:sqflite/sqflite.dart';
 
 // Offline-first Artist Service
@@ -141,10 +142,12 @@ class OfflineArtistService {
         }
 
         if (songsResult['success']) {
-          // Combine regular songs and group songs
-          final List<dynamic> allSongs = [
-            ...(songsResult['songs'] ?? []),
-            ...groupSongs,
+          // Combine regular songs and group songs, converting both to SongModel
+          final List<SongModel> allSongs = [
+            ...(songsResult['songs'] as List? ?? [])
+                .map((json) => SongModel.fromJson(json))
+                .toList(),
+            ...groupSongs.map((gs) => _convertToSongModel(gs, artistId)).toList(),
           ];
 
           return {
@@ -414,8 +417,11 @@ class OfflineArtistService {
       print('⚠️ Failed to fetch cached group songs for artist: $e');
     }
 
-    // Combine both lists
-    final allSongs = [...songMaps, ...groupSongs];
+    // Combine both lists and convert all to SongModel
+    final allSongs = [
+      ...songMaps.map((json) => SongModel.fromJson(json)).toList(),
+      ...groupSongs.map((gs) => _convertToSongModel(gs, artistId)).toList(),
+    ];
 
     return {
       'success': true,
@@ -423,6 +429,47 @@ class OfflineArtistService {
       'message': 'Artist songs loaded from cache',
       'source': 'cache',
     };
+  }
+
+  // Helper method to convert GroupSongModel or Map to SongModel
+  SongModel _convertToSongModel(dynamic gs, int artistId) {
+    if (gs is SongModel) return gs;
+    if (gs is GroupSongModel) {
+      return SongModel(
+        id: gs.id,
+        songname: gs.songName,
+        artistId: artistId,
+        artistName: gs.artists.map((a) => a.name).join(', '),
+        artistImage: gs.artists.isNotEmpty ? gs.artists[0].image : null,
+        albumName: gs.albumName,
+        image: gs.image,
+        lyricsSi: gs.lyricsSi,
+        lyricsEn: gs.lyricsEn,
+        lyricsTa: gs.lyricsTa,
+        duration: gs.duration != null ? _parseDuration(gs.duration) : null,
+        createdAt: gs.createdAt,
+        updatedAt: gs.updatedAt,
+        synced: 1,
+      );
+    }
+    // If it's a Map, use SongModel.fromJson
+    return SongModel.fromJson(gs as Map<String, dynamic>);
+  }
+
+  int? _parseDuration(String? durationStr) {
+    if (durationStr == null) return null;
+    // Handle "MM:SS" format
+    if (durationStr.contains(':')) {
+      try {
+        final parts = durationStr.split(':');
+        if (parts.length == 2) {
+          return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+    return int.tryParse(durationStr);
   }
 
   Future<Map<String, dynamic>> _createArtistLocally(ArtistModel artist) async {

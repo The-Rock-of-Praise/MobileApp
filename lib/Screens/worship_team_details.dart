@@ -61,7 +61,7 @@ class _WorshipTeamDetailsState extends State<WorshipTeamDetails> {
       }
       
       if (songsResult['success']) {
-        final loadedSongs = (songsResult['songs'] as List).map((e) => e as SongModel).toList();
+        final loadedSongs = List<SongModel>.from(songsResult['songs']);
         songs = loadedSongs;
 
         // If only one song, navigate directly to MusicPlayer

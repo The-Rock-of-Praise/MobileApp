@@ -116,12 +116,7 @@ class _ArtistAlbumSongDetailsState extends State<ArtistAlbumSongDetails> {
     try {
       final result = await _artistService.getArtistSongs(widget.artistId);
       if (result['success']) {
-        final List<SongModel> loadedSongs =
-            (result['songs'] as List<dynamic>)
-                .map(
-                  (song) => song is SongModel ? song : SongModel.fromJson(song),
-                )
-                .toList();
+        final List<SongModel> loadedSongs = List<SongModel>.from(result['songs']);
 
         setState(() {
           songs = loadedSongs;
