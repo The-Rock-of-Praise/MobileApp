@@ -224,45 +224,6 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                           child: Column(
                             children: [
-    // Google සහ Apple බටන් දෙක එකම Row එකක
-    Row(
-      children: [
-        Expanded(
-          child: AuthViaBigButton(
-            name: 'Google',
-            path: 'assets/Google.png',
-            ontap: googleSignUp,
-            isLoading: false,
-          ),
-        ),
-        const SizedBox(width: 15), // බටන් දෙක මැද පරතරය සඳහා
-        Expanded(
-          child: AuthViaBigButton(
-            name: 'Apple',
-            path: 'assets/AppleInc.png',
-            ontap: appleSignUp,
-            isLoading: false,
-          ),
-        ),
-      ],
-    ),
-                              const SizedBox(height: 15),
-
-                              Row(
-                                children: [
-                                  Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                                    child: Text(
-                                      "or",
-                                      style: TextStyle(color: Colors.white.withOpacity(0.4)),
-                                    ),
-                                  ),
-                                  Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
-                                ],
-                              ),
-                              const SizedBox(height: 15),
-
                               AuthTextfeildContainer(
                                 controller: _nameController,
                                 hintText: 'Fullname',
@@ -315,7 +276,7 @@ class _SignupPageState extends State<SignupPage> {
                                     child: GestureDetector(
                                       onTap: () => setState(() => _isAgreed = !_isAgreed),
                                       child: Text(
-                                        'I agree with Privacy and Policy',
+                                        'I agree to the Privacy Policy and Terms of Use',
                                         style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
                                       ),
                                     ),
@@ -324,7 +285,52 @@ class _SignupPageState extends State<SignupPage> {
                               ),
 
                               const SizedBox(height: 10),
+
                               AuthButton(text: 'Sign Up', onTap: signUp),
+
+                              const SizedBox(height: 20),
+
+    // 5. "or" Divider එක (දැන් මේක තියෙන්නේ Sign Up බටන් එකට යටින්)
+    Row(
+      children: [
+        Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            "or",
+            style: TextStyle(color: Colors.white.withOpacity(0.4)),
+          ),
+        ),
+        Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+      ],
+    ),
+
+    const SizedBox(height: 20),
+
+    // 6. Google සහ Apple බටන් දෙක (Column එකක් විදිහට ලස්සනට එකක් යට එකක්)
+    Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: AuthViaBigButton(
+            name: 'Continue with Google',
+            path: 'assets/Google.png',
+            ontap: googleSignUp,
+            isLoading: false,
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: AuthViaBigButton(
+            name: 'Continue with Apple',
+            path: 'assets/AppleInc.png',
+            ontap: appleSignUp,
+            isLoading: false,
+          ),
+        ),
+      ],
+    ),
                             ],
                           ),
                         ),

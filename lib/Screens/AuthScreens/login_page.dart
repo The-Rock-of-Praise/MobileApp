@@ -201,20 +201,22 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 30),
 
                     // Social Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: googleSignIn,
-                            child: AuthViaButtons(name: 'Google', path: 'assets/Google.png'),
+                        GestureDetector(
+                          onTap: googleSignIn,
+                          child: AuthViaButtons(
+                            name: 'Continue with Google', 
+                            path: 'assets/Google.png',
                           ),
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: appleSignIn,
-                            child: AuthViaButtons(name: 'Apple', path: 'assets/AppleInc.png'),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: appleSignIn,
+                          child: AuthViaButtons(
+                            name: 'Continue with Apple', 
+                            path: 'assets/AppleInc.png',
                           ),
                         ),
                       ],
