@@ -389,7 +389,9 @@ class _WorshipArtistAlbumSongDetailsState extends State<WorshipArtistAlbumSongDe
                 const SizedBox(height: 4),
                 if (!isLoadingArtist && artist != null) ...[
                   Text(
-                    '${albums.length} Albums • ${artist!.songCount ?? 0} Songs',
+                    albums.isNotEmpty
+                        ? '${albums.length} Albums • ${artist!.songCount ?? 0} Songs'
+                        : '${artist!.songCount ?? 0} Songs',
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   if (artist!.bio != null && artist!.bio!.isNotEmpty) ...[
@@ -565,7 +567,8 @@ class _WorshipArtistAlbumSongDetailsState extends State<WorshipArtistAlbumSongDe
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(song.albumName ?? 'Unknown Album', style: const TextStyle(color: Colors.white70, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+          if (song.albumName != null && song.albumName!.isNotEmpty)
+            Text(song.albumName!, style: const TextStyle(color: Colors.white70, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
           if (song.duration != null) Text(song.formattedDuration, style: const TextStyle(color: Colors.white60, fontSize: 12)),
         ],
       ),
@@ -600,8 +603,10 @@ class _WorshipArtistAlbumSongDetailsState extends State<WorshipArtistAlbumSongDe
                     children: [
                       _buildArtistHeader(),
                       const SizedBox(height: 20),
-                      _buildAlbumsSection(),
-                      const SizedBox(height: 30),
+                      if (albums.isNotEmpty) ...[
+                        _buildAlbumsSection(),
+                        const SizedBox(height: 30),
+                      ],
                       _buildSongsSection(),
                       const SizedBox(height: 30),
                     ],

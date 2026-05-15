@@ -490,7 +490,7 @@ class _WorshipArtistPageState extends State<WorshipArtistPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${artist.albumCount ?? 0} Albums',
+                      '${artist.songCount ?? 0} Songs',
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                       textAlign: TextAlign.center,
                     ),

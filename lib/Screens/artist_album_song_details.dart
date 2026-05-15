@@ -446,7 +446,9 @@ class _ArtistAlbumSongDetailsState extends State<ArtistAlbumSongDetails> {
                 const SizedBox(height: 4),
                 if (!isLoadingArtist && artist != null) ...[
                   Text(
-                    '${albums.length} Albums • ${songs.length} Songs',
+                    albums.isNotEmpty
+                        ? '${albums.length} Albums • ${songs.length} Songs'
+                        : '${songs.length} Songs',
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   if (artist!.bio != null && artist!.bio!.isNotEmpty) ...[
@@ -735,12 +737,13 @@ class _ArtistAlbumSongDetailsState extends State<ArtistAlbumSongDetails> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            song.albumName ?? selectedAlbum?.name ?? 'Unknown Album',
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          if ((song.albumName?.isNotEmpty ?? false) || (selectedAlbum?.name.isNotEmpty ?? false))
+            Text(
+              song.albumName ?? selectedAlbum!.name,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           if (song.duration != null)
             Text(
               song.formattedDuration,
@@ -797,9 +800,10 @@ class _ArtistAlbumSongDetailsState extends State<ArtistAlbumSongDetails> {
                       const SizedBox(height: 20),
 
                       // Albums Section
-                      _buildAlbumsSection(),
-
-                      const SizedBox(height: 30),
+                      if (albums.isNotEmpty) ...[
+                        _buildAlbumsSection(),
+                        const SizedBox(height: 30),
+                      ],
 
                       // Songs Section
                       _buildSongsSection(),

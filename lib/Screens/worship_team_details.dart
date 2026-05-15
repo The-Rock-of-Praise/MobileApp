@@ -196,7 +196,12 @@ class _WorshipTeamDetailsState extends State<WorshipTeamDetails> {
                                       children: [
                                         Text(widget.worshipTeamName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                                         const SizedBox(height: 6),
-                                        Text('${albums.length} Albums • ${songs.length} Songs', style: const TextStyle(color: Colors.white70)),
+                                        Text(
+                                          albums.isNotEmpty
+                                              ? '${albums.length} Albums • ${songs.length} Songs'
+                                              : '${songs.length} Songs',
+                                          style: const TextStyle(color: Colors.white70),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -207,41 +212,40 @@ class _WorshipTeamDetailsState extends State<WorshipTeamDetails> {
                             const SizedBox(height: 20),
 
                             // Albums
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Albums', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                                  if (selectedAlbum != null)
-                                    TextButton(onPressed: _loadAllData, child: const Text('Show All Songs', style: TextStyle(color: Colors.amber))),
-                                ],
+                            if (albums.isNotEmpty) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Albums', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                    if (selectedAlbum != null)
+                                      TextButton(onPressed: _loadAllData, child: const Text('Show All Songs', style: TextStyle(color: Colors.amber))),
+                                  ],
+                                ),
                               ),
-                            ),
 
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              height: 160,
-                              child: albums.isEmpty
-                                  ? const Center(child: Text('No albums found', style: TextStyle(color: Colors.white70)))
-                                  : ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                                      itemCount: albums.length,
-                                      itemBuilder: (context, index) {
-                                        final album = albums[index];
-                                        return Padding(
-                                          padding: EdgeInsets.only(right: index < albums.length - 1 ? 15 : 0),
-                                          child: GestureDetector(
-                                            onTap: () => _openAlbumInPlayer(album),
-                                            child: _buildAlbumCard(album),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                            ),
-
-                            const SizedBox(height: 30),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                height: 160,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  itemCount: albums.length,
+                                  itemBuilder: (context, index) {
+                                    final album = albums[index];
+                                    return Padding(
+                                      padding: EdgeInsets.only(right: index < albums.length - 1 ? 15 : 0),
+                                      child: GestureDetector(
+                                        onTap: () => _openAlbumInPlayer(album),
+                                        child: _buildAlbumCard(album),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                            ],
 
                             // Songs
                             Padding(

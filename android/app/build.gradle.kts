@@ -39,6 +39,7 @@ android {
         }
     }
     namespace = "com.therockofpraise.lyrics"
+    ndkVersion = "28.2.13676358"
     compileSdk = 34
     
     
