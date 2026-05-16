@@ -319,16 +319,16 @@ class _SignupPageState extends State<SignupPage> {
             isLoading: false,
           ),
         ),
-        // const SizedBox(height: 12),
-        // SizedBox(
-        //   width: double.infinity,
-        //   child: AuthViaBigButton(
-        //     name: 'Continue with Apple',
-        //     path: 'assets/AppleInc.png',
-        //     ontap: appleSignUp,
-        //     isLoading: false,
-        //   ),
-        // ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: AuthViaBigButton(
+            name: 'Continue with Apple',
+            path: 'assets/AppleInc.png',
+            ontap: appleSignUp,
+            isLoading: false,
+          ),
+        ),
       ],
     ),
                             ],
