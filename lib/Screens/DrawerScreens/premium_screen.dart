@@ -94,6 +94,18 @@ class _PremiumScreenState extends State<PremiumScreen> {
     }
   }
 
+  Future<void> _handleRestore() async {
+    setState(() => _isLoading = true);
+    try {
+      await _iapService.restorePurchases();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Restore failed: ${e.toString()}'), backgroundColor: Colors.red),
+      );
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -295,6 +307,20 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 child: Text(
                   'Secure payment via Google Play / App Store',
                   style: TextStyle(color: Colors.white38, fontSize: 11),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: TextButton(
+                  onPressed: _isLoading ? null : _handleRestore,
+                  child: const Text(
+                    'Restore Purchases',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      decoration: TextDecoration.underline,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ),
             ],

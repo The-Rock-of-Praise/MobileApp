@@ -14,11 +14,14 @@ class IAPService {
   
   List<ProductDetails> products = [];
   bool isAvailable = false;
+  bool _isInitialized = false;
 
   // Callback to update UI when purchase status changes
   Function(PurchaseStatus status, String? error)? onPurchaseUpdate;
 
   Future<void> initialize() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
     isAvailable = await _iap.isAvailable();
     if (!isAvailable) {
       debugPrint("IAP not available on this device");
@@ -63,6 +66,10 @@ class IAPService {
       // For subscriptions, use buyNonConsumable as they are managed by the store
       await _iap.buyNonConsumable(purchaseParam: purchaseParam);
     }
+  }
+
+  Future<void> restorePurchases() async {
+    await _iap.restorePurchases();
   }
 
   void _listenToPurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) {
