@@ -211,14 +211,14 @@ class _LoginPageState extends State<LoginPage> {
                             path: 'assets/Google.png',
                           ),
                         ),
-                        // const SizedBox(height: 16),
-                        // GestureDetector(
-                        //   onTap: appleSignIn,
-                        //   child: AuthViaButtons(
-                        //     name: 'Continue with Apple', 
-                        //     path: 'assets/AppleInc.png',
-                        //   ),
-                        // ),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: appleSignIn,
+                          child: AuthViaButtons(
+                            name: 'Continue with Apple', 
+                            path: 'assets/AppleInc.png',
+                          ),
+                        ),
                       ],
                     ),
 
