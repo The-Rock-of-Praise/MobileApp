@@ -40,9 +40,6 @@ void main() async {
     // Set up background messaging handler
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-    // Initialize Push Notifications
-    await PushNotificationService().initialize();
-
     // 💎 SESSION VALIDATION: Check Pro status & Due Date on Launch
     final String userId = await UserService.getUserID();
     if (userId.isNotEmpty) {

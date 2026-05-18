@@ -10,6 +10,7 @@ import 'package:lyrics/Screens/HomeScreen/home_screen.dart';
 import 'package:lyrics/Service/user_service.dart';
 import '../OfflineService/connectivity_manager.dart';
 import '../OfflineService/sync_manager.dart';
+import 'package:lyrics/Service/push_notification_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -49,6 +50,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Sync premium status from backend (with local-DB fallback)
     await getProfile();
+
+    // Initialize Push Notifications safely after UI has started rendering
+    try {
+      await PushNotificationService().initialize();
+    } catch (e) {
+      debugPrint("❌ PushNotificationService initialization failed: $e");
+    }
 
     // Wait for splash duration
     await Future.delayed(const Duration(seconds: 3));
